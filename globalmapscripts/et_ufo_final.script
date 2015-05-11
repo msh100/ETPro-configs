@@ -1,0 +1,463 @@
+game_manager
+{
+	spawn
+	{
+		wm_axis_respawntime	30
+		wm_allied_respawntime	20
+		wm_number_of_objectives 5
+		wm_set_round_timelimit	12
+
+		wm_objective_status 1 0 0
+		wm_objective_status 1 1 0
+		wm_objective_status 2 0 0
+		wm_objective_status 2 1 0
+		wm_objective_status 3 0 0
+		wm_objective_status 3 1 0
+		wm_objective_status 4 0 0
+		wm_objective_status 4 1 0
+		wm_objective_status 5 0 0
+		wm_objective_status 5 1 0
+
+		wm_set_main_objective		1	0
+		wm_set_main_objective		1	1
+
+		wm_set_defending_team	0
+
+		wm_setwinner	0
+
+		wait 200
+
+		setautospawn	"North Road"			0
+		setautospawn	"Allied Drop Point"		1
+
+		wait 200
+
+		wm_teamvoiceannounce 0 "radar_axis_entrances_defend"
+
+		wm_teamvoiceannounce 1 "radar_allies_entrances_destroy"
+
+		wait 1000
+
+		setstate orig_spawn_wobj invisible
+		alertentity orig_spawn
+
+		setautospawn	"Hanger Building"		0
+	}
+
+	trigger timelimit_hit
+	{
+		trigger ufo_gogo gogo
+	}
+}
+
+thunderstuff
+{
+	spawn
+	{
+		accum 3 set 0
+		trigger self random
+	}
+
+	trigger random
+	{
+		accum 3 random 5
+		accum 3 trigger_if_equal 0 thunderstuff thunder01
+		accum 3 trigger_if_equal 1 thunderstuff thunder02
+		accum 3 trigger_if_equal 2 thunderstuff thunder03
+		accum 3 trigger_if_equal 3 thunderstuff thunder04
+		accum 3 trigger_if_equal 4 thunderstuff thunder05
+		wait 25000
+		trigger self random
+	}
+
+	trigger thunder01
+	{
+		alertentity lightning01
+		togglespeaker thunderspeaker01
+	}
+
+	trigger thunder02
+	{
+		alertentity lightning02
+		togglespeaker thunderspeaker02
+	}
+
+	trigger thunder03
+	{
+		alertentity lightning03
+		togglespeaker thunderspeaker03
+	}
+
+	trigger thunder04
+	{
+		alertentity lightning04
+		togglespeaker thunderspeaker04
+	}
+
+	trigger thunder05
+	{
+		alertentity lightning05
+		togglespeaker thunderspeaker05
+	}
+}
+
+allied_obj1
+{
+	spawn
+	{
+		wait 400
+		constructible_class 3
+	}
+
+	death
+	{
+		// *----------------------------------- vo ------------------------------------------*
+		wm_teamvoiceannounce 0 "radar_axis_entrance1_destroyed"
+		wm_teamvoiceannounce 1 "radar_allies_entrance1_destroyed"
+		// *---------------------------------------------------------------------------------*
+
+		wm_announce "Allies have breached the main entrance!"
+
+		wm_objective_status 		1 0 2
+		wm_objective_status 		1 1 1
+	}
+}
+
+allied_obj2
+{
+	spawn
+	{
+		wait 400
+		constructible_class 3
+	}
+
+	death
+	{
+		// *----------------------------------- vo ------------------------------------------*
+		wm_teamvoiceannounce 0 "radar_axis_entrance2_destroyed"
+		wm_teamvoiceannounce 1 "radar_allies_entrance2_destroyed"
+		// *---------------------------------------------------------------------------------*
+
+		wm_announce "Allies have breached the side entrance!"
+
+		wm_objective_status 		2 0 2
+		wm_objective_status 		2 1 1
+	}
+}
+
+allied_obj3
+{
+	spawn
+	{
+
+	}
+
+	trigger stolen
+	{
+		wm_objective_status 4 0 2
+		wm_objective_status 4 1 1
+	}
+
+	trigger secured
+	{
+	}
+
+	trigger dropped
+	{
+		wm_announce "Allied team has dropped the UFO documents!"
+	}
+
+	trigger returned
+	{
+		wm_objective_status 4 0 1
+		wm_objective_status 4 1 0
+	}
+}
+
+allied_obj4
+{
+	spawn
+	{
+	}
+
+	death
+	{
+		wm_objective_status 4 0 2
+		wm_objective_status 4 1 1
+
+		wm_announce	"Allies Transmitted the UFO Documents!"
+		wait 1500
+
+		wm_setwinner 1
+
+		wm_endround
+	}
+}
+
+allied_compost_built
+{
+	spawn
+	{
+		wait 400
+		trigger allied_compost_built setup
+
+		constructible_class 2
+	}
+
+	trigger setup
+	{
+		setchargetimefactor 1 soldier 1
+		setchargetimefactor 1 lieutenant 1
+		setchargetimefactor 1 medic 1
+		setchargetimefactor 1 engineer 1
+		setchargetimefactor 1 covertops 1
+		sethqstatus 1 0
+	}
+
+	buildstart final
+	{
+		setstate allied_compost_built_model underconstruction
+		setstate neutral_compost_closed_clip invisible
+		setstate neutral_compost_closed_model invisible
+	}
+
+	built final
+	{
+		setstate allied_compost_built_model default
+		setstate neutral_compost_closed_clip invisible
+		setstate neutral_compost_closed_model invisible
+
+		trigger allied_compost_built_model enable_allied_features
+
+		enablespeaker allies_compost_sound
+	}
+
+	decayed final
+	{
+		setstate allied_compost_built_model invisible
+		setstate neutral_compost_closed_clip default
+		setstate neutral_compost_closed_model default
+	}
+
+	death
+	{
+		setstate allied_compost_built_model invisible
+		setstate neutral_compost_closed_clip default
+		setstate neutral_compost_closed_model default
+
+		trigger allied_compost_built_model disable_allied_features
+
+		disablespeaker allies_compost_sound
+	}
+}
+
+allied_compost_built_model
+{
+	spawn
+	{
+		wait 400
+		setstate allied_compost_built_model invisible
+	}
+
+	trigger enable_allied_features
+	{
+		setchargetimefactor 1 soldier 0.75
+		setchargetimefactor 1 lieutenant 0.75
+		setchargetimefactor 1 medic 0.75
+		setchargetimefactor 1 engineer 0.75
+		setchargetimefactor 1 covertops 0.75
+		sethqstatus 1 1
+
+		trigger bunker_wobj on
+
+		wm_announce	"Allied Command Post constructed. Charge speed increased!"
+
+		// *----------------------------------- vo ------------------------------------------*
+		wm_teamvoiceannounce 0 "axis_hq_compost_constructed_allies"
+
+		wm_teamvoiceannounce 1 "allies_hq_compost_constructed"
+
+		wm_removeteamvoiceannounce 1 "allies_hq_compost_construct"
+		// *---------------------------------------------------------------------------------*
+
+		wm_objective_status 5 0 2
+		wm_objective_status 5 1 1
+	}
+
+	trigger disable_allied_features
+	{
+		setchargetimefactor 1 soldier 1
+		setchargetimefactor 1 lieutenant 1
+		setchargetimefactor 1 medic 1
+		setchargetimefactor 1 engineer 1
+		setchargetimefactor 1 covertops 1
+		sethqstatus 1 0
+
+		trigger bunker_wobj off
+
+		wm_announce	"Axis team has destroyed the Allied Command Post!"
+
+		// *----------------------------------- vo ------------------------------------------*
+		wm_addteamvoiceannounce 0 "axis_hq_compost_construct"
+
+		wm_addteamvoiceannounce 1 "allies_hq_compost_construct"
+
+		wm_teamvoiceannounce 0 "axis_hq_compost_construct"
+
+		wm_teamvoiceannounce 1 "allies_hq_compost_damaged"
+		// *---------------------------------------------------------------------------------*
+
+		wm_objective_status 5 0 0
+		wm_objective_status 5 1 0
+	}
+}
+
+axis_compost_built
+{
+	spawn
+	{
+		wait 400
+		trigger axis_compost_built setup
+
+		constructible_class 2
+	}
+
+	trigger setup
+	{
+		setchargetimefactor 0 soldier 1
+		setchargetimefactor 0 lieutenant 1
+		setchargetimefactor 0 medic 1
+		setchargetimefactor 0 engineer 1
+		setchargetimefactor 0 covertops 1
+		sethqstatus 0 0
+	}
+
+	buildstart final
+	{
+		setstate axis_compost_built_model underconstruction
+		setstate neutral_compost_closed_clip invisible
+		setstate neutral_compost_closed_model invisible
+	}
+
+	built final
+	{
+		setstate axis_compost_built_model default
+		setstate neutral_compost_closed_clip invisible
+		setstate neutral_compost_closed_model invisible
+
+		trigger axis_compost_built_model enable_axis_features
+
+		enablespeaker axis_compost_sound
+	}
+
+	decayed final
+	{
+		setstate axis_compost_built_model invisible
+		setstate neutral_compost_closed_clip default
+		setstate neutral_compost_closed_model default
+	}
+
+	death
+	{
+		setstate axis_compost_built_model invisible
+		setstate neutral_compost_closed_clip default
+		setstate neutral_compost_closed_model default
+
+		trigger axis_compost_built_model disable_axis_features
+
+		disablespeaker axis_compost_sound
+	}
+}
+
+axis_compost_built_model
+{
+	spawn
+	{
+		wait 400
+		setstate axis_compost_built_model invisible
+	}
+
+	trigger enable_axis_features
+	{
+		setchargetimefactor 0 soldier 0.75
+		setchargetimefactor 0 lieutenant 0.75
+		setchargetimefactor 0 medic 0.75
+		setchargetimefactor 0 engineer 0.75
+		setchargetimefactor 0 covertops 0.75
+		sethqstatus 0 1
+
+		wm_announce	"Axis Command Post constructed. Charge speed increased!"
+
+		// *----------------------------------- vo ------------------------------------------*
+		wm_teamvoiceannounce 0 "axis_hq_compost_constructed"
+
+		wm_teamvoiceannounce 1 "allies_hq_compost_constructed_axis"
+
+		wm_removeteamvoiceannounce 0 "axis_hq_compost_construct"
+		// *---------------------------------------------------------------------------------*
+
+		wm_objective_status 5 0 1
+		wm_objective_status 5 1 2
+	}
+
+	trigger disable_axis_features
+	{
+		setchargetimefactor 0 soldier 1
+		setchargetimefactor 0 lieutenant 1
+		setchargetimefactor 0 medic 1
+		setchargetimefactor 0 engineer 1
+		setchargetimefactor 0 covertops 1
+		sethqstatus 0 0
+
+		wm_announce	"Allied team has destroyed the Axis Command Post!"
+
+		// *----------------------------------- vo ------------------------------------------*
+		wm_addteamvoiceannounce 0 "axis_hq_compost_construct"
+
+		wm_addteamvoiceannounce 1 "allies_hq_compost_construct"
+
+		wm_teamvoiceannounce 0 "axis_hq_compost_damaged"
+
+		wm_teamvoiceannounce 1 "allies_hq_compost_construct"
+		// *---------------------------------------------------------------------------------*
+
+		wm_objective_status 5 0 0
+		wm_objective_status 5 1 0
+	}
+}
+
+bunker_wobj
+{
+	spawn
+	{
+		wait 50
+		setstate bunker_wobj invisible
+	}
+
+	trigger on
+	{
+		setstate bunker_wobj default
+		alertentity reinforce_flag
+		setautospawn	"South Bunker"		1
+	}
+
+	trigger off
+	{
+		setstate bunker_wobj invisible
+		alertentity reinforce_flag
+		setautospawn	"Allied Drop Point"		1
+	}
+}
+
+ufo_gogo
+{
+	spawn
+	{
+
+	}
+
+	trigger gogo
+	{
+		alertentity ufo_gogo
+	}
+}

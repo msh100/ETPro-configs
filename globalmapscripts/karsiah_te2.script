@@ -1,0 +1,458 @@
+game_manager
+{
+	spawn
+	{
+		create
+		{			
+			scriptname "doornwall"
+			targetname "doornwall"
+			classname "func_door_rotating"
+			allowteams "1"
+			origin "976 -1684 331"
+			type "4"
+			model "*14"
+		}
+
+		create
+		{
+			scriptName "newobjdoor_toi"
+			classname "trigger_objective_info"
+			targetname "newobjdoor_toi"
+			target "newobjdoor"
+			origin "-1342 -1185 36"
+     			mins "-100 -100 -100"
+      			maxs "100 100 100"
+			spawnflags 1
+            		shortname  "Axis Sidewall"
+            		track      "the Axis Sidewall"
+		}
+		create
+		{			
+			scriptname "newobjdoor"
+			targetname "newobjdoor"
+			classname "func_constructible"
+			//origin "-2400 300 -310"
+			origin "-2750 -2165 -310"
+			model "*9"
+			spawnflags "7"
+        		modelscale "3"
+          		contents "1"
+		}
+	create
+        {
+            scriptname "reifen"
+            targetname "reifen1"
+            origin "-1393 -1206 20"
+            angles "0 170 90"
+            classname "misc_gamemodel"
+            modelscale 1
+            contents 1
+            mins "-20 -20 -100"
+            maxs "20 20 52"
+            clipmask 1
+            model "models/mapobjects/blitz_sd/blitzwheelsf.md3"
+        }	
+	create
+        {
+            scriptname "reifen"
+            targetname "reifen2"
+            origin "-1393 -1206 7"
+            angles "0 170 90"
+            classname "misc_gamemodel"
+            modelscale 1
+            contents 1
+            mins "-20 -20 -100"
+            maxs "20 20 52"
+            clipmask 1
+            model "models/mapobjects/blitz_sd/blitzwheelsf.md3"
+        }	
+	create
+        {
+            scriptname "reifen"
+            targetname "reifen3"
+            origin "-1393 -1206 -6"
+            angles "0 170 90"
+            classname "misc_gamemodel"
+            modelscale 1
+            contents 1
+            mins "-20 -20 -100"
+            maxs "20 20 52"
+            clipmask 1
+            model "models/mapobjects/blitz_sd/blitzwheelsf.md3"
+        }	
+	create
+        {
+            scriptname "reifen"
+            targetname "reifen4"
+            origin "-1393 -1206 -19"
+            angles "0 170 90"
+            classname "misc_gamemodel"
+            modelscale 1
+            contents 1
+            mins "-20 -20 -100"
+            maxs "20 20 52"
+            clipmask 1
+            model "models/mapobjects/blitz_sd/blitzwheelsf.md3"
+        }
+	create
+        {
+            scriptname "reifen"
+            targetname "reifen5"
+            origin "-1393 -1206 -32"
+            angles "0 170 90"
+            classname "misc_gamemodel"
+            modelscale 1
+            contents 1
+            mins "-20 -20 -100"
+            maxs "20 20 52"
+            clipmask 1
+            model "models/mapobjects/blitz_sd/blitzwheelsf.md3"
+        }
+	create
+        {
+            scriptname "reifen"
+            targetname "reifen6"
+            origin "-1393 -1206 -45"
+            angles "0 170 90"
+            classname "misc_gamemodel"
+            modelscale 1
+            contents 1
+            mins "-20 -20 -100"
+            maxs "20 20 52"
+            clipmask 1
+            model "models/mapobjects/blitz_sd/blitzwheelsf.md3"
+        }
+	create
+        {
+            scriptname "reifen"
+            targetname "reifen6"
+            origin "-1393 -1206 -58"
+            angles "0 170 90"
+            classname "misc_gamemodel"
+            modelscale 1
+            contents 1
+            mins "-20 -20 -100"
+            maxs "20 20 52"
+            clipmask 1
+            model "models/mapobjects/blitz_sd/blitzwheelsf.md3"
+        }	
+	create
+        {
+            scriptname "reifen"
+            targetname "reifen7"
+            origin "-1393 -1206 33"
+            angles "0 170 90"
+            classname "misc_gamemodel"
+            modelscale 1
+            contents 1
+            mins "-20 -20 -100"
+            maxs "20 20 52"
+            clipmask 1
+            model "models/mapobjects/blitz_sd/blitzwheelsf.md3"
+        }		
+		// Game rules
+		wm_axis_respawntime	30
+		wm_allied_respawntime	20
+		wm_number_of_objectives 5
+		wm_set_round_timelimit	15
+
+		// Objectives
+		// 1: Destroy the Old City Door
+		// 2: Capture the Old City
+		// 3&4: Steal the Documents
+		// 5: Transmit the Documents
+
+		wm_set_main_objective		1	0
+		wm_set_main_objective		1	1
+
+		wm_objective_status 1 1 0
+		wm_objective_status 1 0 0
+		wm_objective_status 2 1 0
+		wm_objective_status 2 0 0
+		wm_objective_status 3 1 0
+		wm_objective_status 3 0 0
+		wm_objective_status 4 1 0
+		wm_objective_status 4 0 0
+		wm_objective_status 5 1 0
+		wm_objective_status 5 0 0
+
+		// Stopwatch mode defending team (0=Axis, 1=Allies)
+		wm_set_defending_team	0
+
+		// Winner on expiration of round timer (0=Axis, 1=Allies)
+		wm_setwinner	0
+
+		accum 1 set 0		// Set counter for radar equipment
+
+
+		wait 150
+		setautospawn "Allied Hideout" 1
+		setautospawn "Old City" 0
+
+		setstate allieswin1 invisible
+		setstate allieswin2 invisible
+		setstate southdocs_cm default
+		setstate northdocs_cm default
+		setstate cm_southdoc default
+		setstate cm_northdoc default
+		// wait for everything to settle
+		wait 500
+
+		wm_teamvoiceannounce 1 "karsiah_allies_hq_citycap"
+		wm_teamvoiceannounce 0 "karsiah_axis_hq_citydef"
+
+		delete
+		{
+			origin "976 -1684 330"	
+		}
+
+	}
+
+	trigger stolen_circuit
+	{
+		accum 1 inc 1				// One circuit board home
+		trigger game_manager checkgame		// Check for end of game
+	}
+
+	trigger checkgame
+	{
+		accum 1 abort_if_not_equal 2
+		wm_announce "Allies have transmitted both Documents!"
+		wm_objective_status 5 0 2
+		wm_objective_status 5 1 1
+
+		wm_setwinner 1
+		wait 1000
+		wm_endround
+	}
+}
+
+// ================================================
+// ============== RADAR DISH MISC =================
+// ================================================
+
+southdocs
+{
+	spawn
+	{
+	}
+
+	trigger stolen
+	{
+		wm_objective_status 4 0 2
+		wm_objective_status 4 1 1
+		wm_set_main_objective		5	0
+		wm_set_main_objective		5	1
+		setstate southdocs_cm invisible
+		setstate cm_southdoc invisible
+	}
+
+	trigger returned
+	{
+		wm_objective_status 4 0 0
+		wm_objective_status 4 1 0
+		wm_set_main_objective		3	0
+		wm_set_main_objective		3	1
+		setstate southdocs_cm default
+		setstate cm_southdoc default
+	}
+
+	trigger captured
+	{
+		wm_announce "Allies have transmitted the South Documents!"
+		wm_teamvoiceannounce 1 "karsiah_allies_obj_sec"
+		wm_teamvoiceannounce 0 "karsiah_axis_obj_lost"
+		setstate allieswin1 default
+		trigger game_manager stolen_circuit
+	}
+}
+
+northdocs
+{
+	spawn
+	{
+	}
+
+
+	trigger stolen
+	{
+		wm_objective_status 3 0 2
+		wm_objective_status 3 1 1
+		wm_set_main_objective		5	0
+		wm_set_main_objective		5	1
+		setstate northdocs_cm invisible
+		setstate cm_northdoc invisible
+	}
+
+	trigger returned
+	{
+		wm_objective_status 3 1 0
+		wm_objective_status 3 0 0
+		wm_set_main_objective		3	0
+		wm_set_main_objective		3	1
+		setstate northdocs_cm default
+		setstate cm_northdoc default
+	}
+
+
+	trigger captured
+	{
+		wm_announce "Allies have transmitted the North Documents!"
+		wm_teamvoiceannounce 1 "karsiah_allies_obj_sec"
+		wm_teamvoiceannounce 0 "karsiah_axis_obj_lost"
+		setstate allieswin2 default
+		trigger game_manager stolen_circuit
+		trigger newobjdoor invisible
+	}
+}
+
+bigdoor
+{
+	spawn
+	{
+		wait 200
+		constructible_class 3
+	}
+
+	death
+	{
+		trigger spawnflag force_allied
+		trigger spawnflag check_obj
+		trigger spawnflag kill
+////////////////////////////////////////////////////
+		trigger newobjdoor visible
+///////////////////////////////////////////////////
+
+		wm_announce "Allies have destroyed the Old City Door!"
+		wm_announce "Allies have captured the Old City!"
+
+		wm_teamvoiceannounce 0 "allies_hq_objective_destroyed"
+		wm_teamvoiceannounce 1 "allies_hq_objective_destroyed"
+
+		wm_set_main_objective		5	0
+		wm_set_main_objective		5	1
+
+		wm_objective_status	2 0 2
+		wm_objective_status	2 1 1
+		wm_objective_status	1 0 2
+		wm_objective_status	1 1 1
+	}
+}
+
+spawnflag
+{
+	spawn
+	{
+		accum 0 set 0
+	}
+
+	trigger axis_capture
+	{
+		accum 0 abort_if_equal 0
+		accum 0 set 0
+
+		setstate middlespawns default
+		setstate middlespawn default
+
+		alertentity middlespawn
+		alertentity middlespawns
+
+		setautospawn "Allied Hideout" 1
+		setautospawn "Old City" 0
+
+		wm_announce "Axis reclaimed the Old City!"
+
+		wm_teamvoiceannounce 0 "karsiah_oasis_axis_city_captured"
+		wm_teamvoiceannounce 1 "karsiah_oasis_allies_city_lost"
+
+		wm_objective_status	1 0 0
+		wm_objective_status	1 1 0
+
+		wm_set_main_objective		1	0
+		wm_set_main_objective		1	1
+
+	}
+
+	trigger allied_capture
+	{
+		accum 0 abort_if_equal 1
+		accum 0 set 1
+
+		setstate middlespawn default
+		setstate middlespawns default
+
+		alertentity middlespawn
+		alertentity middlespawns
+
+		setautospawn "Backyard" 0
+		setautospawn "Old City" 1
+
+		wm_announce "Allies capture the Old City!"
+
+		wm_teamvoiceannounce 0 "karsiah_oasis_axis_city_lost"
+		wm_teamvoiceannounce 1 "karsiah_oasis_allies_city_captured"
+
+		wm_objective_status	1 0 2
+		wm_objective_status	1 1 1
+
+		wm_set_main_objective		2	0
+		wm_set_main_objective		2	1
+	}
+
+	trigger check_obj
+	{
+		accum 0 abort_if_equal 1
+	}
+
+	trigger force_allied
+	{
+		accum 0 abort_if_equal 1
+
+		alertentity middlespawn
+		alertentity middlespawns
+
+		setautospawn "Old City" 1
+		setautospawn "Backyard" 0
+
+	}
+
+	trigger kill
+	{
+		remove
+	}
+}
+newobjdoor
+{
+	spawn
+	{
+		wait 50
+		setstate newobjdoor_toi invisible
+		trigger self invisible
+		faceangles 0 90 0 1
+		
+	}
+	trigger visible
+	{
+		setstate newobjdoor default
+		setstate reifen1 default
+		setstate reifen2 default
+		setstate reifen3 default
+		setstate reifen4 default
+		setstate reifen5 default
+		setstate reifen6 default
+		setstate reifen7 default
+	}
+	trigger invisible
+	{
+
+		setstate newobjdoor invisible
+		setstate reifen1 invisible
+		setstate reifen2 invisible
+		setstate reifen3 invisible
+		setstate reifen4 invisible
+		setstate reifen5 invisible
+		setstate reifen6 invisible
+		setstate reifen7 invisible
+
+	}
+}

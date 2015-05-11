@@ -1,0 +1,292 @@
+game_manager
+{
+	spawn
+	{
+		// Game rules
+		wm_axis_respawntime	30
+		wm_allied_respawntime	20
+		wm_number_of_objectives 5
+		wm_set_round_timelimit	12
+
+		// Objectives
+		// 1: Primary1 : steal the holy grail
+		// 2: Primary2 : escape through the secret exit
+		// 3: Secondary1 : blowup main gate
+		// 4: Secondary2 : blowup tunnel door
+		// 5: Allied command post
+
+		wm_objective_status 1 1 0
+		wm_objective_status 1 0 0
+		wm_objective_status 2 1 0
+		wm_objective_status 2 0 0
+		wm_objective_status 3 1 0
+		wm_objective_status 3 0 0
+		wm_objective_status 4 1 0
+		wm_objective_status 4 0 0
+		wm_objective_status 5 1 0
+		wm_objective_status 5 0 0
+
+		//main opjective is to cap docs
+		wm_set_main_objective 2 1
+		wm_set_main_objective 2 0
+
+		wait 150
+		setautospawn    "the Tower"   		1
+		setautospawn    "Forward Spawn"   	0
+
+		//Take docs
+		accum 1 set 0
+		// Cap docs
+		accum 2 set 0
+		//main gate
+		accum 3 set 0
+		//tunnel door
+		accum 4 set 0
+		//cp
+		accum 5 set 0
+
+		// Set Defending Team for SW Mode
+		wm_set_defending_team	0
+
+		// If the round timer expires, the Nazis have won, so set the current winning team
+		// Set the round winner:  0 == AXIS, 1 == ALLIED
+		wm_setwinner 0
+
+		wait 1000
+		// *----------------------------------- vo ------------------------------------------*
+		wm_teamvoiceannounce 1 "radar_allies_entrances_destroy"
+		wm_teamvoiceannounce 0 "radar_axis_entrances_defend"
+		wm_teamvoiceannounce 1 "allies_hq_compost_construct"
+		wm_teamvoiceannounce 0 "te_escape2_axis_cp_stop_construct"
+		// *----------------------------------- vo ------------------------------------------*
+	}
+}
+
+unholy_grail
+{
+	spawn
+	{
+		wait 500
+	}
+
+	trigger stolen
+   	{
+		wm_announce "^1The Allied team have stolen the Unholy Grail!"
+		wm_objective_status 		1 0 2
+		wm_objective_status 		1 1 1
+
+		setstate axis_gold_toi invisible
+	}
+
+	trigger returned
+	{
+		wm_announce "^1The Unholy Grail has been returned!"
+
+		wm_objective_status 		1 0 1
+		wm_objective_status 		1 1 2
+
+		setstate axis_gold_toi default
+	}
+
+	trigger captured
+	{
+		wm_announce "^1The Allied team escaped with the Unholy Grail!"
+
+		wait 2500
+	}
+}
+
+secret_exit
+{
+	death
+	{
+		accum 2 set 1
+
+		wm_objective_status 		2 0 2
+		wm_objective_status 		2 1 1
+
+		wm_teamvoiceannounce 0 "axis_hq_objective_lost"
+		wm_teamvoiceannounce 1 "allies_hq_objective_captured"
+
+		wm_setwinner 1
+		wait 500
+		wm_endround 
+	}
+}
+
+door_obj02 //main gate
+{
+	spawn
+	{
+		wait 500
+		disablespeaker somalarme
+		constructible_class 3
+	}
+	death
+	{
+		wm_teamvoiceannounce 1 "radar_allies_entrance1_destroyed"
+		wm_teamvoiceannounce 0 "radar_axis_entrance1_destroyed"
+		wm_announce "Allies have destroyed the Main Gate!"
+
+		wm_objective_status 	3 0 2
+		wm_objective_status 	3 1 1
+
+		enablespeaker somalarme
+	}
+}
+
+door_obj01 //tunnel door
+{
+	spawn
+	{
+		wait 200
+		constructible_class 3
+	}
+	death
+	{
+		wm_teamvoiceannounce 0 "fueldump_axis_tunnel_destroyed"
+		wm_teamvoiceannounce 1 "fueldump_allies_tunnel_destroyed"
+		wm_announce "Allies have destroyed the Tunnel Door!"
+
+		wm_objective_status 	4 0 2
+		wm_objective_status 	4 1 1
+
+		enablespeaker somalarme
+	}
+}
+
+
+// ================================================
+// ============ NEUTRAL COMMAND POST ==============
+// ================================================
+
+allied_compost_built
+{
+	spawn
+	{
+		wait 500
+		trigger allied_compost_built setup
+		disablespeaker somcp
+
+		constructible_class 2
+		accum 0 set 0	//  Who has the spawn: 0-Axis, 1-Allied
+	}
+
+	trigger setup
+	{
+		setchargetimefactor 1 soldier 1
+		setchargetimefactor 1 lieutenant 1
+		setchargetimefactor 1 medic 1
+		setchargetimefactor 1 engineer 1
+		setchargetimefactor 1 covertops 1
+		sethqstatus 1 0
+
+		disablespeaker allied_cp_sound		// Disable morse code sound
+	}
+
+	buildstart final
+	{
+		setstate allied_compost_built_model underconstruction
+		setstate allied_compost_closed_clip invisible
+		setstate allied_compost_closed_model invisible
+	}
+
+	built final
+	{
+		setstate allied_compost_built_model default
+		setstate allied_compost_closed_clip invisible
+		setstate allied_compost_closed_model invisible
+
+		trigger allied_compost_built_model enable_allied_features
+
+		enablespeaker allies_compost_sound
+	}
+
+	decayed final
+	{
+		setstate allied_compost_built_model invisible
+		setstate allied_compost_closed_clip default
+		setstate allied_compost_closed_model default
+	}
+
+	death
+	{
+		setstate allied_compost_built_model invisible
+		setstate allied_compost_closed_clip default
+		setstate allied_compost_closed_model default
+
+		trigger allied_compost_built_model disable_allied_features
+
+		disablespeaker allies_compost_sound
+	}
+}
+
+allied_compost_built_model
+{
+	spawn
+	{
+		wait 400
+		setstate allied_compost_built_model invisible
+	}
+
+	trigger enable_allied_features
+	{
+		setchargetimefactor 1 soldier 0.75
+		setchargetimefactor 1 lieutenant 0.75
+		setchargetimefactor 1 medic 0.75
+		setchargetimefactor 1 engineer 0.75
+		setchargetimefactor 1 covertops 0.75
+		sethqstatus 1 1
+
+		enablespeaker somcp		// Enable morse code sound
+
+		wm_announce	"Allied Command Post constructed. Charge speed increased!"
+
+		// *----------------------------------- vo ------------------------------------------*
+		wm_teamvoiceannounce 0 "axis_hq_compost_constructed_allies"
+		wm_teamvoiceannounce 1 "allies_hq_compost_constructed"
+		// *---------------------------------------------------------------------------------*
+
+		wm_objective_status 5 0 2
+		wm_objective_status 5 1 1
+
+		alertentity cp_spawn_wobj
+		alertentity frentespawns
+
+		setautospawn "Castle Wolfenstein" 0
+		setautospawn "Forward Spawn" 1
+	}
+
+	trigger disable_allied_features
+	{
+		setchargetimefactor 1 soldier 1
+		setchargetimefactor 1 lieutenant 1
+		setchargetimefactor 1 medic 1
+		setchargetimefactor 1 engineer 1
+		setchargetimefactor 1 covertops 1
+		sethqstatus 1 0
+
+		disablespeaker somcp		// Disable morse code sound
+
+		wm_announce	"Axis team has destroyed the Allied Command Post!"
+
+		// *----------------------------------- vo ------------------------------------------*
+		wm_addteamvoiceannounce 0 "axis_hq_compost_construct"
+		wm_addteamvoiceannounce 1 "allies_hq_compost_construct"
+		wm_teamvoiceannounce 0 "axis_hq_compost_construct"
+		wm_teamvoiceannounce 1 "allies_hq_compost_damaged"
+		// *---------------------------------------------------------------------------------*
+
+		wm_objective_status 5 0 1
+		wm_objective_status 5 1 2
+
+		alertentity cp_spawn_wobj
+		alertentity frentespawns
+
+		setautospawn "the Tower" 1
+		setautospawn "Forward Spawn" 0
+
+		wm_objective_status 5 0 0
+		wm_objective_status 5 1 0
+	}
+}
