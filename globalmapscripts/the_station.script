@@ -1,0 +1,363 @@
+
+
+game_manager
+{
+	spawn
+	{
+		wait 500			
+		wm_set_round_timelimit	15	
+		wm_axis_respawntime 	10
+		wm_allied_respawntime	10
+		wm_number_of_objectives 2
+		wm_setwinner -1
+		
+		wm_announce	"the_station"
+
+		alertentity allied_flag	// reveal the flags to start with, setstate invisble and default
+		alertentity axis_flag	// should work from here on.
+
+		accum 1 set 0		// allies flag captured counter.
+		accum 2 set 0		// axis flag captured counter.
+
+		// initially set the scoreboard to 0/0 for this test, we will count up, although
+		// you could also count down just as well.. but its easier for this test to go up.
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al0ax0"
+        	remapshader "gfx/limbo/cm_flagallied.tga" "gfx/limbo/allied_spawn_rb.tga"
+        	remapshader "gfx/limbo/cm_flagaxis.tga" "gfx/limbo/axis_spawn_rb.tga"
+        	remapshaderflush
+	}
+
+	trigger allies_captd		// update allies captured, just 4 flags for this test
+	{
+		accum 2 inc 1
+		accum 2 trigger_if_equal 3 game_manager allies_win
+
+		// allies score board stuff
+		// as mentioned below, we do not set the final capture if its 3.
+		accum 2 trigger_if_equal 1 game_manager allies1
+		accum 2 trigger_if_equal 2 game_manager allies2
+		
+	}
+
+	trigger axis_captd		// update axis captured, just 3 flags for this test
+	{
+		accum 1 inc 1
+		accum 1 trigger_if_equal 3 game_manager axis_win
+
+		// axis score board stuff
+		// as mentioned below, we do not set the final capture if its 3.
+		accum 1 trigger_if_equal 1 game_manager axis1
+		accum 1 trigger_if_equal 2 game_manager axis2
+		
+	}
+
+	trigger allies_win
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass"
+        	remapshaderflush 	// this shouldnt be needed at all, but i like to repair any
+					// damage i have done or might make for the next map.
+
+		wm_announce "Allies have Captured all 3 Flags!!!!"
+		wm_teamvoiceannounce 0 "blue_team_is_the_winner"
+		wm_teamvoiceannounce 1 "blue_team_is_the_winner"
+		wm_setwinner 1	// allies win.
+		wm_endround		// end game.
+	}
+
+	trigger axis_win
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass"
+        	remapshaderflush 	// this shouldnt be needed at all, but i like to repair any
+					// damage i have done or might make for the next map.
+
+		wm_announce "Axis have Captured all 3 Flags!!!!"
+		wm_teamvoiceannounce 0 "red_team_is_the_winner"
+		wm_teamvoiceannounce 1 "red_team_is_the_winner"
+		wm_setwinner 0	// axis win.
+		wm_endround		// end game.
+	}
+
+	trigger timelimit_hit	// who has more captures or if they broke even
+	{
+		wm_setwinner -1
+		trigger game_manager parse_allies
+		trigger game_manager parse_axis
+		wm_announce "Both teams have Tied!!"
+		wait 250
+	}
+
+	// setting the scoreboard.
+	// the scoreboard meat.. and it can get long... depending on what the score limit is.
+	// we dont actually set the final capture which in this case is 4, we only goto 3
+	// because when the final capture hits, the game just ends.. so no need to set the
+	// scoreboard for it.
+
+	// allies set
+	trigger allies1
+	{
+		accum 1 trigger_if_equal 0 game_manager allies1_axis0
+		accum 1 trigger_if_equal 1 game_manager allies1_axis1
+		accum 1 trigger_if_equal 2 game_manager allies1_axis2
+		accum 1 trigger_if_equal 3 game_manager allies1_axis3
+	}
+	trigger allies2
+	{
+		accum 1 trigger_if_equal 0 game_manager allies2_axis0
+		accum 1 trigger_if_equal 1 game_manager allies2_axis1
+		accum 1 trigger_if_equal 2 game_manager allies2_axis2
+		accum 1 trigger_if_equal 3 game_manager allies2_axis3
+	}
+	trigger allies3
+	{
+		accum 1 trigger_if_equal 0 game_manager allies3_axis0
+		accum 1 trigger_if_equal 1 game_manager allies3_axis1
+		accum 1 trigger_if_equal 2 game_manager allies3_axis2
+		accum 1 trigger_if_equal 3 game_manager allies3_axis3
+	}
+
+	// axis set
+	trigger axis1
+	{
+		accum 2 trigger_if_equal 0 game_manager axis1_allies0
+		accum 2 trigger_if_equal 1 game_manager axis1_allies1
+		accum 2 trigger_if_equal 2 game_manager axis1_allies2
+		accum 2 trigger_if_equal 3 game_manager axis1_allies3
+	}
+	trigger axis2
+	{
+		accum 2 trigger_if_equal 0 game_manager axis2_allies0
+		accum 2 trigger_if_equal 1 game_manager axis2_allies1
+		accum 2 trigger_if_equal 2 game_manager axis2_allies2
+		accum 2 trigger_if_equal 3 game_manager axis2_allies3
+	}
+	trigger axis3
+	{
+		accum 2 trigger_if_equal 0 game_manager axis3_allies0
+		accum 2 trigger_if_equal 1 game_manager axis3_allies1
+		accum 2 trigger_if_equal 2 game_manager axis3_allies2
+		accum 2 trigger_if_equal 3 game_manager axis3_allies3
+	}
+
+	//
+	// allies 1 to axis 0-3 ----------------------------------
+	//
+	trigger allies1_axis0
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al1ax0"
+        	remapshaderflush
+	}
+	trigger allies1_axis1
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al1ax1"
+        	remapshaderflush
+	}
+	trigger allies1_axis2
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al1ax2"
+        	remapshaderflush
+	}
+	trigger allies1_axis3
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al1ax3"
+        	remapshaderflush
+	}
+	// allies 2 to axis 0-3
+	//
+	trigger allies2_axis0
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al2ax0"
+        	remapshaderflush
+	}
+	trigger allies2_axis1
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al2ax1"
+        	remapshaderflush
+	}
+	trigger allies2_axis2
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al2ax2"
+        	remapshaderflush
+	}
+	trigger allies2_axis3
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al2ax3"
+        	remapshaderflush
+	}	
+	// allies 3 to axis 0-3
+	//
+	trigger allies3_axis0
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al3ax0"
+        	remapshaderflush
+	}
+	trigger allies3_axis1
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al3ax1"
+        	remapshaderflush
+	}
+	trigger allies3_axis2
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al3ax2"
+        	remapshaderflush
+	}
+	trigger allies3_axis3
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al3ax3"
+        	remapshaderflush
+	}
+
+	//
+	// axis 1 to allies 0-3 ----------------------------------
+	//
+	trigger axis1_allies0
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al0ax1"
+        	remapshaderflush
+	}
+	trigger axis1_allies1
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al1ax1"
+        	remapshaderflush
+	}
+	trigger axis1_allies2
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al2ax1"
+        	remapshaderflush
+	}
+	trigger axis1_allies3
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al3ax1"
+        	remapshaderflush
+	}
+	// axis 2 to allies 0-3
+	//
+	trigger axis2_allies0
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al0ax2"
+        	remapshaderflush
+	}
+	trigger axis2_allies1
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al1ax2"
+        	remapshaderflush
+	}
+	trigger axis2_allies2
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al2ax2"
+        	remapshaderflush
+	}
+	trigger axis2_allies3
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al3ax2"
+        	remapshaderflush
+	}
+	// axis 3 to allies 0-3
+	//
+	trigger axis3_allies0
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al0ax3"
+        	remapshaderflush
+	}
+	trigger axis3_allies1
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al1ax3"
+        	remapshaderflush
+	}
+	trigger axis3_allies2
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al2ax3"
+        	remapshaderflush
+	}
+	trigger axis3_allies3
+	{
+        	remapshader "gfx/2d/compass" "gfx/2d/compass_al3ax3"
+        	remapshaderflush
+	}
+	
+}
+
+
+//
+
+allied_flag
+{
+	trigger stolen	// axis stole a flag
+	{
+		setstate allied_flag invisible		// hide the team_CTF_blueflag entity
+		setstate allies_cap_flag invisible		// hide the allies trigger_flagonly_multiple in case the allies
+		wm_teamvoiceannounce 0 "a_blue_flag_taken"
+		wm_teamvoiceannounce 1 "a_blue_flag_taken"
+	}								// have the axis flag, they can't cap it.
+	
+	
+	trigger dropped
+	{
+	wm_announce "^4Allied flag dropped!!"
+	wm_teamvoiceannounce 0 "a_blue_flag_dropped"
+	wm_teamvoiceannounce 1 "a_blue_flag_dropped"
+	}
+
+	trigger returned	// flag was dropped and timed out or an allied player touched it
+	{
+		setstate allied_flag default			// axis lost the flag, so setstate the team_CTF_blueflag and
+		setstate allies_cap_flag default		// their trigger_flagonly_multiple back.
+		wm_teamvoiceannounce 0 "a_blue_flag_returned"
+		wm_teamvoiceannounce 1 "a_blue_flag_returned"
+	}
+}
+
+axis_flag
+{
+	trigger stolen	
+	{
+		setstate axis_flag invisible
+		setstate axis_cap_flag invisible
+		wm_teamvoiceannounce 0 "a_red_flag_taken"
+		wm_teamvoiceannounce 1 "a_red_flag_taken"
+	}
+
+	trigger dropped
+	{
+	wm_announce "^1Axis flag dropped!!"
+	wm_teamvoiceannounce 0 "a_red_flag_dropped"
+	wm_teamvoiceannounce 1 "a_red_flag_dropped"
+	}
+	
+	
+	trigger returned
+	{
+		setstate axis_flag default
+		setstate axis_cap_flag default
+		wm_teamvoiceannounce 0 "a_red_flag_returned"
+		wm_teamvoiceannounce 1 "a_red_flag_returned"
+	}
+}
+
+allies_cap_flag   // allies have transported the axis flag and made it back to their flagpole.
+
+{
+   death
+   {
+		setstate axis_flag default		//  flag comes back minus 1 count,
+		setstate axis_cap_flag default	// trigger_flagonly_multiple back also.
+		wm_announce "the Allies have Captured the Flag!!!"
+		wm_teamvoiceannounce 0 "blue_team_scores"
+		wm_teamvoiceannounce 1 "blue_team_scores"
+      	trigger game_manager allies_captd  // go update the allies flag captured counter.
+   }
+} 
+
+axis_cap_flag
+
+{
+   death
+   {
+		setstate allied_flag default
+		setstate allies_cap_flag default
+		wm_announce "the Axis have Captured the Flag!!!"
+		wm_teamvoiceannounce 0 "red_team_scores"
+		wm_teamvoiceannounce 1 "red_team_scores"
+		trigger game_manager axis_captd
+   }
+} 
+
