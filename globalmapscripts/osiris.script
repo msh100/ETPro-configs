@@ -1,0 +1,455 @@
+//Map: osiris
+
+game_manager
+{
+	spawn
+	{
+	
+	
+
+	wm_axis_respawntime 12
+	wm_allied_respawntime 12
+	wm_set_round_timelimit 10
+
+	wm_number_of_objectives	6 0
+	wm_number_of_objectives	6 1
+
+	wm_objective_status 1 0 0
+	wm_objective_status 1 1 0
+
+	wm_objective_status 2 0 0
+	wm_objective_status 2 1 0
+
+	wm_objective_status 3 0 0
+	wm_objective_status 3 1 0
+
+	wm_objective_status 4 0 0
+	wm_objective_status 4 1 0
+
+	wm_objective_status 5 0 0
+	wm_objective_status 5 1 0
+
+	wm_objective_status 6 0 0
+	wm_objective_status 6 1 0
+
+//main objectives
+
+	wm_set_main_objective 1 0
+	wm_set_main_objective 1 1
+
+	wm_set_main_objective 2 0
+	wm_set_main_objective 2 1
+
+	wm_set_main_objective 3 0
+	wm_set_main_objective 3 1
+
+	wm_set_main_objective 4 0
+	wm_set_main_objective 4 1
+
+	wm_set_main_objective 5 0
+	wm_set_main_objective 5 1
+
+	wm_set_main_objective 6 0
+	wm_set_main_objective 6 1
+
+	
+
+	wm_setwinner -1
+
+	wait 500		
+
+	}
+
+	trigger status_axis
+	{
+	}
+
+	trigger status _allies
+	{
+	}
+
+	trigger axis_stole1
+	{
+		//allies gold 1
+		wm_objective_status 4 1 2
+		wm_objective_status 4 0 1
+		accum 0 inc 1
+		trigger game_manager axis_secured
+		trigger game_manager axis_check
+	}
+
+	trigger axis_stole2
+	{
+		//allies gold 2
+		wm_objective_status 5 1 2
+		wm_objective_status 5 0 1
+		accum 0 inc 1
+		trigger game_manager axis_secured
+		trigger game_manager axis_check
+	}
+
+	trigger axis_stole3
+	{
+		//allies gold 3
+		wm_objective_status 6 1 2
+		wm_objective_status 6 0 1
+		accum 0 inc 1
+		trigger game_manager axis_secured
+		trigger game_manager axis_check 
+	}
+
+	trigger axis_secured
+	{
+		accum 0 trigger_if_equal 1 game_manager axis_secured1
+		accum 0 trigger_if_equal 2 game_manager axis_secured2
+		accum 0 trigger_if_equal 3 game_manager axis_secured3
+	}
+	trigger axis_secured1
+	{
+		wm_announce "^1Axis ^7have secured ^3one ^wof the Allies Gold!"
+	}
+	trigger axis_secured2
+	{
+		wm_announce "^1Axis ^7have secured ^2two ^7of the Allies Gold!"
+	}
+	trigger axis_secured3
+	{
+		wm_announce "^1Axis ^7have secured ^6ALL ^7of the Allies Gold!"
+	}
+
+	trigger axis_check
+	{
+		wm_teamvoiceannounce 1 "allies_hq_objective_lost"
+		wm_teamvoiceannounce 0 "axis_hq_objective_captured"
+		accum 0 trigger_if_equal 3 game_manager axis_win
+	}
+		
+	trigger axis_win
+	{	
+		wm_setwinner 0
+
+		wait 1500
+
+		wm_endround
+	}
+
+	trigger allies_stole1
+	{
+		//axis gold 1
+		wm_objective_status 1 1 1
+		wm_objective_status 1 0 2
+		accum 1 inc 1
+		trigger game_manager allies_secured 
+		trigger game_manager allies_check
+	}
+
+	trigger allies_stole2
+	{
+		//axis gold 2
+		wm_objective_status 2 1 1
+		wm_objective_status 2 0 2
+		accum 1 inc 1
+		trigger game_manager allies_secured
+		trigger game_manager allies_check
+	}
+
+	trigger allies_stole3
+	{
+		//axis gold 3
+		wm_objective_status 3 1 1
+		wm_objective_status 3 0 2
+		accum 1 inc 1
+		trigger game_manager allies_secured
+		trigger game_manager allies_check
+	}
+
+	trigger allies_secured
+	{
+		accum 1 trigger_if_equal 1 game_manager allies_secured1
+		accum 1 trigger_if_equal 2 game_manager allies_secured2
+		accum 1 trigger_if_equal 3 game_manager allies_secured3
+	}
+
+	trigger allies_secured1
+	{
+		wm_announce "^4Allies ^7have secured ^3one ^7of the Axis Gold!"
+	}
+
+	trigger allies_secured2
+	{
+		wm_announce "^4Allies ^7have secured ^2two ^7of the Axis Gold!"
+	}
+
+	trigger allies_secured3
+	{
+		wm_announce "^4Allies ^7have secured ^6ALL ^7of the Axis Gold!"
+	}
+
+	trigger allies_check
+	{
+		wm_teamvoiceannounce 0 "axis_hq_objective_lost"
+		wm_teamvoiceannounce 1 "allies_hq_objective_captured"
+		accum 1 trigger_if_equal 3 game_manager allies_win
+	}
+
+	trigger allies_win
+	{
+		wm_setwinner 1
+
+		wait 1500
+
+		wm_endround
+	}
+
+//cm_marker
+//axis_gold
+//stolen
+
+	trigger first_axis_gold_stol
+	{
+		setstate first_axis_gold_cm_marker invisible
+	}
+	
+	trigger second_axis_gold_stol
+	{
+		setstate second_axis_gold_cm_marker invisible
+	}
+
+	trigger third_axis_gold_stol
+	{
+		setstate third_axis_gold_cm_marker invisible
+	}
+
+//returned
+
+	trigger first_axis_gold_ret
+	{
+		setstate first_axis_gold_cm_marker default
+	}
+	
+	trigger second_axis_gold_ret
+	{
+		setstate second_axis_gold_cm_marker default
+	}
+
+	trigger third_axis_gold_ret
+	{
+		setstate third_axis_gold_cm_marker default
+	}
+
+
+//captured
+
+	trigger first_axis_gold_cap
+	{
+		setstate first_axis_gold_cm_marker invisible
+	}
+	
+	trigger second_axis_gold_cap
+	{
+		setstate second_axis_gold_cm_marker invisible
+	}
+
+	trigger third_axis_gold_cap
+	{
+		setstate third_axis_gold_cm_marker invisible
+	}
+
+//cm_marker
+//allied_gold
+//stolen
+
+	trigger first_allied_gold_stol
+	{
+		setstate first_allied_gold_cm_marker invisible
+	}
+	
+	trigger second_allied_gold_stol
+	{
+		setstate second_allied_gold_cm_marker invisible
+	}
+
+	trigger third_allied_gold_stol
+	{
+		setstate third_allied_gold_cm_marker invisible
+	}
+
+//returned
+
+	trigger first_allied_gold_ret
+	{
+		setstate first_allied_gold_cm_marker default
+	}
+	
+	trigger second_allied_gold_ret
+	{
+		setstate second_allied_gold_cm_marker default
+	}
+
+	trigger third_allied_gold_ret
+	{
+		setstate third_allied_gold_cm_marker default
+	}
+
+
+//captured
+
+	trigger first_allied_gold_cap
+	{
+		setstate first_allied_gold_cm_marker invisible
+	}
+	
+	trigger second_allied_gold_cap
+	{
+		setstate second_allied_gold_cm_marker invisible
+	}
+
+	trigger third_allied_gold_cap
+	{
+		setstate third_allied_gold_cm_marker invisible
+	}
+}
+
+status_axis
+{
+	spawn
+	{
+		accum 0 set 0
+	}
+}
+
+status_allies
+{
+	spawn
+	{
+		accum 1 set 0
+	}
+}
+
+
+//allies capture gold 1
+first_axis_gold
+{
+	spawn
+	{
+	}
+	trigger stolen
+	{
+		trigger game_manager first_axis_gold_stol
+	}
+	trigger returned
+	{
+		trigger game_manager first_axis_gold_ret
+	}
+	trigger captured
+	{
+		trigger game_manager allies_stole1
+		trigger game_manager first_axis_gold_cap
+	}
+}
+
+//allies capture gold 2
+second_axis_gold
+{
+	spawn
+	{
+	}
+	trigger stolen
+	{
+		trigger game_manager second_axis_gold_stol
+	}
+	trigger returned
+	{
+		trigger game_manager second_axis_gold_ret
+	}
+	trigger captured
+	{
+		trigger game_manager allies_stole2
+		trigger game_manager second_axis_gold_cap
+	}
+}
+
+//allies capture gold 3
+third_axis_gold
+{
+	spawn
+	{
+	}
+	trigger stolen
+	{
+		trigger game_manager third_axis_gold_stol
+	}
+	trigger returned
+	{
+		trigger game_manager third_axis_gold_ret
+	}
+	trigger captured
+	{
+		trigger game_manager allies_stole3
+		trigger game_manager third_axis_gold_cap
+	}
+}
+
+
+//axis capture gold 1
+first_allied_gold
+{
+	spawn
+	{
+	}
+	trigger stolen
+	{
+		trigger game_manager first_allied_gold_stol
+	}
+	trigger returned
+	{
+		trigger game_manager first_allied_gold_ret
+	}
+	trigger captured
+	{
+		trigger game_manager axis_stole1
+		trigger game_manager first_allied_gold_cap
+	}
+}
+
+//axis capture gold 2
+second_allied_gold
+{
+	spawn
+	{
+	}
+	trigger stolen
+	{
+		trigger game_manager second_allied_gold_stol
+	}
+	trigger returned
+	{
+		trigger game_manager second_allied_gold_ret
+	}
+	trigger captured
+	{
+		trigger game_manager axis_stole2
+		trigger game_manager second_allied_gold_cap
+	}
+}
+
+//axis capture gold 3
+third_allied_gold
+{
+	spawn
+	{
+	}
+	trigger stolen
+	{
+		trigger game_manager third_allied_gold_stol
+	}
+	trigger returned
+	{
+		trigger game_manager third_allied_gold_ret
+	}
+	trigger captured
+	{
+		trigger game_manager axis_stole3
+		trigger game_manager third_allied_gold_cap
+	}
+}
