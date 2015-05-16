@@ -19,7 +19,7 @@ Notice: Add "set b_gameformat 6" to your server.cfg or config to restrict sniper
 --]]
 
 modname = "globalcombined"
-version = "4"
+version = "{{ version }}"
 
 function et_InitGame(levelTime,randomSeed,restart)
 	et.RegisterModname(""..modname.."   "..version.."   "..et.FindSelf())
