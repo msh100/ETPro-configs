@@ -657,7 +657,7 @@ activate allies
 	wait 50
 
 	// Axis-only door fix
-	trigger axisonlydoor_st pscaptured pscaptured
+	trigger axisonlydoor_st pscaptured
 	setstate axisonlydoor2 default
 	setstate axisonlydoor invisible
 	trigger axisonlydoor2 open
