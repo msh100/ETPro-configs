@@ -567,3 +567,4 @@ end
 function setPlayerWeapon(playerID , weapon)
     et.gentity_set(playerID, "sess.latchPlayerWeapon", weapon)
 end
+
