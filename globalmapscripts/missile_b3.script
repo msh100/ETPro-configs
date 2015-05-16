@@ -654,6 +654,13 @@ activate allies
 		// *---------------------------------------------------------------------------------*
 
 	wait 50
+	
+	// Axis-only door fix
+	trigger axisonlydoor_st pscaptured
+	setstate axisonlydoor2 default
+	setstate axisonlydoor invisible
+	trigger axisonlydoor2 open
+	//
 
 	setautospawn "Rocket Gate Spawn" 1
 	setautospawn "Rocket Hall Spawn" 0
@@ -671,9 +678,6 @@ activate allies
 	trigger gate open
 	trigger gate2 open
 	setstate gatecontrol_spk_steam invisible
-	setstate axisonlydoor2 default
-	setstate axisonlydoor invisible
-	trigger axisonlydoor2 open
 
 	wm_objective_status 3 0 2
 	wm_objective_status 3 1 1
