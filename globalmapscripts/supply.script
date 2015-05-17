@@ -15,6 +15,7 @@ game_manager {
                 // mortis - roof clip
                 create
                 {
+cvar pauselock set 1
                         scriptName "bugfix1"
                         classname "func_fakebrush"
                         origin "1072 -1824 502"
