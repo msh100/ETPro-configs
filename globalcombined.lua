@@ -64,6 +64,7 @@ function et_ClientCommand(cno,cmd)
 	if cmd == "pause"
 		et.trap_SendServerCommand( cno , "print \"Pause captured.\n\"" )
 		return 1
+	end
 
 
 if cmd == "forcetapout" then --forcetapout bugfix
