@@ -728,7 +728,7 @@ crane_enabler {
                 accum 2 abort_if_equal 0        //Abort if crane controls not built
                 accum 1 set 0                        //Only do the crane routine once!
 
-				cvar pauselock set 1 // Pause lock enabled
+                cvar pauselock set 1 // Pause lock enabled
                 wm_announce "The Allies have activated the crane!"
                 // *----------------------------------- vo ------------------------------------------*
                 wm_teamvoiceannounce 0 "axis_gold_taken"
@@ -797,7 +797,7 @@ crane_enabler {
 
                 //Let truck continue
                 trigger truck enable_stage3
-				cvar pauselock set 0 // Pause lock disabled
+                cvar pauselock set 0 // Pause lock disabled
                 wm_announce "The Allies have loaded the Gold Crate onto the Truck!"
                 setstate goldcrate invisible
             wait 100
