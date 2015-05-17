@@ -45,12 +45,6 @@ function et_ClientCommand(cno,cmd)
 	local cmd = string.lower(cmd)
 	local arg1 = string.lower(et.trap_Argv(1)) 
 	local byte = string.byte(arg1,1)
-	
-	if (cmd == "say" or cmd == "say_team" or cmd == "say_buddy" or cmd == "say_teamnl") and serverpassword == "" then
-		if string.find(et.trap_Argv(1), "^(%d+).(%d+).(%d+).(%d+)") or string.find(et.trap_Argv(1), "^.(%w+):(%d+)") then
-			return 1 -- abort message
-		end
-	end
 
 	if string.find(arg1, "^7ref") or string.find(arg1, "^7rcon") then
 		et.trap_SendServerCommand( cno, "print \"Ckeck your typing: '"..arg1.."'\n\"" )
@@ -352,26 +346,6 @@ function et_ClientUserinfoChanged( cno )
 		et.G_LogPrint(string.format("userinfocheck infochanged: client %d bad userinfo %s\n",cno,reason))
 		et.trap_SetUserinfo( cno, "name\\badinfo" )
 		et.trap_DropClient( cno, "bad userinfo", 0 )
-	end
-	for client = 0, (maxclients - 1) do
-		local player_guid = string.upper(et.Info_ValueForKey(et.trap_GetUserinfo(client), "cl_guid"))
-		local player_name = et.Info_ValueForKey(et.trap_GetUserinfo(client), "name")
-		
-		local player_name_cno = et.Info_ValueForKey(et.trap_GetUserinfo(cno), "name")
-		local player_guid_cno = string.upper(et.Info_ValueForKey(et.trap_GetUserinfo(cno), "cl_guid"))
-		
-		if player_name == player_name_cno and player_name_cno ~= "ETPlayer" and player_name_cno ~= "UnnamedPlayer" and cno ~= client then
-			et.G_LogPrint(string.format("userinfocheck: client %d badinfo %s\n",cno,"duplicate name"))
-			et.trap_DropClient( cno, "duplicate name", 0 )
-		elseif player_guid == player_guid_cno and player_guid ~= "NO_GUID" and player_guid ~= "UNKNOWN" and cno ~= client then
-			et.G_LogPrint(string.format("userinfocheck: client %d badinfo %s\n",cno,"duplicate guid"))
-			et.trap_DropClient( cno, "duplicate guid", 0 )
-		end
-		
-		if (string.find(player_name_cno, "(%d+).(%d+).(%d+).(%d+)") or string.find(player_name_cno, "^.(%w+):(%d+)") or string.find(player_name_cno, "(%d+)%s(%d+)%s(%d+)%s(%d+)%s(%d+)")) and serverpassword == "" then
-			et.G_LogPrint(string.format("userinfocheck: client %d badinfo %s\n",cno,"ip name"))
-			et.trap_DropClient( cno, "ip name", 0 )
-		end
 	end
 end
 
