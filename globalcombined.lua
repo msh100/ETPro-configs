@@ -33,6 +33,7 @@ function et_InitGame(levelTime,randomSeed,restart)
 		et.trap_Cvar_Set( "b_gameformat", "0" )
 	end
 
+	et.trap_Cvar_Set("pauselock", "0")
 end
 
 -- client command checks, formerly wsfix
