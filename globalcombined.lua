@@ -61,6 +61,10 @@ function et_ClientCommand(cno,cmd)
 			return 1
 		end
 	end
+	if cmd == "pause"
+		et.trap_SendServerCommand( cno , "print \"Pause captured.\n\"" )
+		return 1
+
 
 if cmd == "forcetapout" then --forcetapout bugfix
 	if et.gentity_get(cno, "r.contents") == 0 then  --contents 0 =nobody
