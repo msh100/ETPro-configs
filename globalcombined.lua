@@ -63,7 +63,7 @@ function et_ClientCommand(cno,cmd)
 	end
 
 	if cmd == "pause" and tonumber(et.trap_Cvar_Get("pauselock")) == 1 then
-		et.trap_SendServerCommand( cno , "print \"Pause captured.\n\"" )
+		et.trap_SendServerCommand( cno , "print \"Pause forbidden during this stage of the map.\n\"" )
 		return 1
 	end
 
