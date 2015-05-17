@@ -62,7 +62,7 @@ function et_ClientCommand(cno,cmd)
 		end
 	end
 
-	if cmd == "pause" and tonumber(et.trap_Cvar_Get("sv_maxclients")) == 1 then
+	if cmd == "pause" and tonumber(et.trap_Cvar_Get("pauselock")) == 1 then
 		et.trap_SendServerCommand( cno , "print \"Pause captured.\n\"" )
 		return 1
 	end
