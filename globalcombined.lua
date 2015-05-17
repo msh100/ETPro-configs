@@ -1,23 +1,40 @@
--- globalcombined lua fixes
--- version: 3
+--[[
+globalcombined lua fixes
+last updated 26/jan/2014
+
+Notice: Add "set b_gameformat 6" to your server.cfg or config to restrict sniper rifle to 1 per team.
+
 -- changelog: 
--- removed tzac statsaver/not working due to empty/errorneus cl_guid (will be fixed in new version using ac_sid)
--- implented b_gamemode check (set in game.config)
--- removed b_config check (unreliable)
+-- ip name/chat blocker for public servers
+-- duplicate name/guid kick
+-- typo fix on /ref and /rcon
+-- fixed an exploit with team command
+-- contains some fixes by Perlo_0ung?!
+-- implented b_gameformat check
 -- removed obsolete/unused stuff
--- using b_config to check for modules (MNwa)
 -- based on combinedfixes.lua
 -- first release
 -- all original work copyright -> reyalp@gmail.com
--- contains some fixes by perlo_0ung
--- contact pds
--- #exitium.et
 
--- last updated 18/dec/2011
+--]]
 
--- modbegin
 modname = "globalcombined"
-version = "0.3d"
+version = "{{ version }}"
+
+function et_InitGame(levelTime,randomSeed,restart)
+	et.RegisterModname(""..modname.."   "..version.."   "..et.FindSelf())
+	gameformat = tonumber(et.trap_Cvar_Get( "b_gameformat" ))
+	maxclients = tonumber( et.trap_Cvar_Get( "sv_maxclients" ) )
+	serverpassword = tonumber( et.trap_Cvar_Get( "g_password" ) )
+	sniperaxis = 0
+	sniperallies = 0
+	
+	if gameformat == nil then
+		et.trap_Cvar_Set( "b_gameformat", "0" )
+	end
+
+	et.trap_Cvar_Set("pauselock", "0")
+end
 
 -- client command checks, formerly wsfix
 -- prevent ws overrun exploit, crlf abuse
@@ -26,13 +43,46 @@ version = "0.3d"
 -- TY McSteve for reporting this to us.
 
 function et_ClientCommand(cno,cmd)
-	cmd = string.lower(cmd)
-if cmd == "forcetapout" then ---forcetapout bugfix
-	 if et.gentity_get(cno, "r.contents") == 0 then  --contents 0 =nobody
+	local cmd = string.lower(cmd)
+	local arg1 = string.lower(et.trap_Argv(1)) 
+	local byte = string.byte(arg1,1)
+
+	if string.find(arg1, "^7ref") or string.find(arg1, "^7rcon") then
+		et.trap_SendServerCommand( cno, "print \"Ckeck your typing: '"..arg1.."'\n\"" )
+		return 1
+	end
+	
+	if cmd == "team" or cmd == "nextteam" then --exploit fix team command
+		if string.len(arg1) > 1 then
+			et.trap_SendServerCommand( cno , "print \"Invalid team join command.\n\"" )
+			return 1
+		end
+		if arg1 ~= "" and byte ~= 98 and byte ~= 114 and byte ~= 115 then 
+			et.trap_SendServerCommand( cno , "print \"Invalid team join command.\n\"" )
+			return 1
+		end
+	end
+
+	if cmd == "pause" and tonumber(et.trap_Cvar_Get("pauselock")) == 1 then
+		et.trap_SendServerCommand( cno , "print \"Pause forbidden during this stage of the map.\n\"" )
+		return 1
+	end
+
+
+if cmd == "forcetapout" then --forcetapout bugfix
+	if et.gentity_get(cno, "r.contents") == 0 then  --contents 0 =nobody
 	 return 1 --prevent it
-   end
+	end
 end
+
+if cmd == "b_gameformat" then
+	et.trap_SendServerCommand( cno,"print \"^wb_gameformat is: "..gameformat.."  default: 0\n\"")
+	return 1
+end
+
+
 if gameformat ~= "6" then -- gameformat check
+
 if cmd == "class" then
    if et.trap_Argv(1) == "c" then
 	if et.trap_Argv(2) == "3" then
@@ -109,30 +159,32 @@ if cmd == "team" then
 	 end
 	end
 end -- gameformat check end
-	if cmd == "ws" then
-		local n = tonumber(et.trap_Argv(1))
-		if not n then
-			et.G_LogPrint(string.format("wsfix: client %d bad ws not a number [%s]\n",cno,tostring(et.trap_Argv(1))))
-			return 1
-		end
-		
-		if n < 0 or n > 21 then
-			et.G_LogPrint(string.format("wsfix: client %d bad ws %d\n",cno,n))
-			return 1
-		end
-		return 0
+
+if cmd == "ws" then
+	local n = tonumber(et.trap_Argv(1))
+	if not n then
+		et.G_LogPrint(string.format("wsfix: client %d bad ws not a number [%s]\n",cno,tostring(et.trap_Argv(1))))
+		return 1
 	end
-	if cmd == "callvote" or cmd == "ref" or cmd == "sa" or cmd == "semiadmin" then
-		local args=et.ConcatArgs(1) 
---		et.G_LogPrint(string.format("combinedfixes: client %d %s [%s]\n",cno,cmd,args))
-		if string.find(args,"[\r\n]") then
-			et.G_LogPrint(string.format("combinedfixes: client %d bad %s [%s]\n",cno,cmd,args))
-			return 1;
-		end
-		return 0
+		
+	if n < 0 or n > 21 then
+		et.G_LogPrint(string.format("wsfix: client %d bad ws %d\n",cno,n))
+		return 1
 	end
 	return 0
 end
+if cmd == "callvote" or cmd == "ref" or cmd == "sa" or cmd == "semiadmin" then
+	local args=et.ConcatArgs(1) 
+--	et.G_LogPrint(string.format("combinedfixes: client %d %s [%s]\n",cno,cmd,args))
+	if string.find(args,"[\r\n]") then
+		et.G_LogPrint(string.format("combinedfixes: client %d bad %s [%s]\n",cno,cmd,args))
+		return 1;
+	end
+	return 0
+end
+
+return 0
+end --end ClientCommand
 
 --  prevent various borkage by invalid userinfo
 -- version: 4
@@ -164,10 +216,12 @@ badnames = {
 --	'^say',
 	'^Callvote',
 	'^broadcast',
+	'^badinfo',
 }
 
 -- returns nil if ok, or reason
 function check_userinfo( cno )
+	if et.gentity_get(cno,"ps.ping") == 0 then return end
 	local userinfo = et.trap_GetUserinfo(cno)
 --	printf("check_userinfo: [%s]\n",userinfo)
 
@@ -270,12 +324,16 @@ function et_RunFrame( leveltime )
 
 --	printf("infocheck %d %d\n", infocheck_client, leveltime)
 	infocheck_lasttime = leveltime
-	if ( et.gentity_get( infocheck_client, "inuse" ) ) then
-		local reason = check_userinfo( infocheck_client )
-		if ( reason ) then
-			et.G_LogPrint(string.format("userinfocheck frame: client %d bad userinfo %s\n",infocheck_client,reason))
-			et.trap_SetUserinfo( infocheck_client, "name\\badinfo" )
-			et.trap_DropClient( infocheck_client, "bad userinfo", 0 )
+	if et.gentity_get(infocheck_client, "pers.connected") ~= 0  then
+		if et.gentity_get(infocheck_client,"ps.ping") ~= 0 then
+			if ( et.gentity_get( infocheck_client, "inuse" ) ) then
+				local reason = check_userinfo( infocheck_client )
+				if ( reason ) then
+					et.G_LogPrint(string.format("userinfocheck frame: client %d bad userinfo %s\n",infocheck_client,reason))
+					et.trap_SetUserinfo( infocheck_client, "name\\badinfo" )
+					et.trap_DropClient( infocheck_client, "bad userinfo", 0 )
+				end
+			end
 		end
 	end
 
@@ -283,17 +341,21 @@ function et_RunFrame( leveltime )
 	if ( infocheck_client >= tonumber(et.trap_Cvar_Get("sv_maxclients")) ) then
 		infocheck_client = 0
 	end
+
 end
+
 
 function et_ClientUserinfoChanged( cno )
 --	printf("clientuserinfochanged %d\n",cno)
 	local reason = check_userinfo( cno )
+	local guid = string.upper(et.Info_ValueForKey(et.trap_GetUserinfo(cno), "cl_guid"))
 	if ( reason ) then
 		et.G_LogPrint(string.format("userinfocheck infochanged: client %d bad userinfo %s\n",cno,reason))
 		et.trap_SetUserinfo( cno, "name\\badinfo" )
 		et.trap_DropClient( cno, "bad userinfo", 0 )
 	end
 end
+
 
 -- prevent etpro guid borkage
 -- version: 1
@@ -310,7 +372,7 @@ function bad_guid(cno,reason)
 
 	et.G_LogPrint(string.format("guidcheck: client %d bad GUID %s\n",cno,reason))
 	-- we don't send them the reason. They can figure it out for themselves.
-	et.trap_DropClient(cno,"You are banned from this server",bantime)
+	et.trap_DropClient(cno,"You are banned from this server",0)
 end
 
 function check_guid_line(text)
@@ -355,10 +417,6 @@ function check_guid_line(text)
 --	printf("guidcheck: OK\n")
 end
 
-function et_Print(text)
-	check_guid_line(text)
-end
-
 -- limit fakeplayers DOS
 -- http://aluigi.altervista.org/fakep.htm
 -- used if cvar is not set
@@ -391,6 +449,8 @@ end
 function et_ClientConnect( cno, firstTime, isBot )
 -- userinfocheck stuff. Do this before IP limit
 --	printf("connect %d\n",cno)
+ if et.gentity_get(cno,"ps.ping") ~= 0 then --allow omnibots
+	
 	local reason = check_userinfo( cno )
 	if ( reason ) then
 		et.G_LogPrint(string.format("userinfocheck connect: client %d bad userinfo %s\n",cno,reason))
@@ -428,40 +488,38 @@ function et_ClientConnect( cno, firstTime, isBot )
 			end
 		end
 	end
+ end
 end
 -- NoAutoDeclare()
 
 -- Perlo_0ung
--- rifle5v5 module
--- implented b_gameformat check
+-- rifle module
 
 function et_ClientSpawn(cno,revived)
-	if gameformat == "5" then
 		if revived == 0 and et.gentity_get(cno, "sess.playerType") == 2 then
 			et.gentity_set(cno,"ps.ammo",39,3)
 			et.gentity_set(cno,"ps.ammo",40,3)
 		end
-	end
 end
 
--- Perlo_0ung
+-- Perlo_0ung?!
 -- votefix version 2
 -- lowers the mapname in "callvote map" command. This fixes the bug with the wrong mapscripthash of .script files.
 -- note mapscripts (.script) have to be lower caps
--- modified by pds:
--- changed code now calls map and config after or config won't load upon being unloaded
--- e.g: callvote map suPPLY results in ->
--- map suPPLY -> unload b_config -> ref map supply -> ref config b_config (before being unset)
 et.CS_VOTE_STRING = 7
 
 function et_Print(text)
+	check_guid_line(text)
+	
 	local t = ParseString(text)  --Vote Passed: Change map to suppLY
 	if t[2] == "Passed:" and t[4] == "map" then 
 		if string.find(t[6],"%u") == nil or t[6] ~= getCS() then return 1 end
 			local mapfixed = string.lower(t[6])
-			et.trap_SendConsoleCommand( et.EXEC_APPEND, "wait ;ref map " .. mapfixed .. ";wait 100;ref config " .. config .. "\n" )
+			et.trap_SendConsoleCommand( et.EXEC_APPEND, "ref map " .. mapfixed .. "\n" )
 	end
-end    
+end
+
+-- helper functions
     
 function ParseString(inputString)
 	local i = 1
@@ -479,16 +537,6 @@ function getCS()
 	return t[4]
 end
 
--- helper functions
-function et_InitGame(levelTime,randomSeed,restart)
-	et.RegisterModname(modname .. " " .. version)
-	config = et.trap_Cvar_Get( "b_config" )
-	gameformat = et.trap_Cvar_Get( "b_gameformat" )
-	maxclients = tonumber( et.trap_Cvar_Get( "sv_maxclients" ) )
-	sniperaxis = 0
-	sniperallies = 0
-end
-
 function getWeapon(playerID)
     return et.gentity_get(playerID, "sess.playerWeapon")
 end 
@@ -499,4 +547,5 @@ end
 
 function setPlayerWeapon(playerID , weapon)
     et.gentity_set(playerID, "sess.latchPlayerWeapon", weapon)
-end 
+end
+
