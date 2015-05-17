@@ -33,6 +33,7 @@ function et_InitGame(levelTime,randomSeed,restart)
 		et.trap_Cvar_Set( "b_gameformat", "0" )
 	end
 
+	et.trap_Cvar_Set("pauselock", "0")
 end
 
 -- client command checks, formerly wsfix
@@ -56,11 +57,17 @@ function et_ClientCommand(cno,cmd)
 			et.trap_SendServerCommand( cno , "print \"Invalid team join command.\n\"" )
 			return 1
 		end
-        if arg1 ~= "" and byte ~= 98 and byte ~= 114 and byte ~= 115 then 
+		if arg1 ~= "" and byte ~= 98 and byte ~= 114 and byte ~= 115 then 
 			et.trap_SendServerCommand( cno , "print \"Invalid team join command.\n\"" )
 			return 1
 		end
 	end
+
+	if cmd == "pause" and tonumber(et.trap_Cvar_Get("pauselock")) == 1 then
+		et.trap_SendServerCommand( cno , "print \"Pause forbidden during this stage of the map.\n\"" )
+		return 1
+	end
+
 
 if cmd == "forcetapout" then --forcetapout bugfix
 	if et.gentity_get(cno, "r.contents") == 0 then  --contents 0 =nobody
