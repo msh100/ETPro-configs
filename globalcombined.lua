@@ -56,12 +56,13 @@ function et_ClientCommand(cno,cmd)
 			et.trap_SendServerCommand( cno , "print \"Invalid team join command.\n\"" )
 			return 1
 		end
-        if arg1 ~= "" and byte ~= 98 and byte ~= 114 and byte ~= 115 then 
+		if arg1 ~= "" and byte ~= 98 and byte ~= 114 and byte ~= 115 then 
 			et.trap_SendServerCommand( cno , "print \"Invalid team join command.\n\"" )
 			return 1
 		end
 	end
-	if cmd == "pause"
+
+	if cmd == "pause" then
 		et.trap_SendServerCommand( cno , "print \"Pause captured.\n\"" )
 		return 1
 	end
