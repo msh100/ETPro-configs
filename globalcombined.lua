@@ -1,22 +1,4 @@
---[[
-globalcombined lua fixes
-last updated 26/jan/2014
-
-Notice: Add "set b_gameformat 6" to your server.cfg or config to restrict sniper rifle to 1 per team.
-
--- changelog:
--- ip name/chat blocker for public servers
--- duplicate name/guid kick
--- typo fix on /ref and /rcon
--- fixed an exploit with team command
--- contains some fixes by Perlo_0ung?!
--- implented b_gameformat check
--- removed obsolete/unused stuff
--- based on combinedfixes.lua
--- first release
--- all original work copyright -> reyalp@gmail.com
-
---]]
+-- Global config set bugfix/exploit Lua v{{ version }}
 
 modname = "globalcombined"
 version = "{{ version }}"
@@ -38,9 +20,6 @@ end
 
 -- client command checks, formerly wsfix
 -- prevent ws overrun exploit, crlf abuse
--- history:
--- 2 - bugfix
--- TY McSteve for reporting this to us.
 
 function et_ClientCommand(cno,cmd)
     local cmd = string.lower(cmd)
@@ -173,7 +152,6 @@ function et_ClientCommand(cno,cmd)
     end
     if cmd == "callvote" or cmd == "ref" or cmd == "sa" or cmd == "semiadmin" then
         local args=et.ConcatArgs(1)
-        -- et.G_LogPrint(string.format("combinedfixes: client %d %s [%s]\n",cno,cmd,args))
         if string.find(args,"[\r\n]") then
             et.G_LogPrint(string.format("combinedfixes: client %d bad %s [%s]\n",cno,cmd,args))
             return 1;
@@ -184,21 +162,8 @@ function et_ClientCommand(cno,cmd)
     return 0
 end --end ClientCommand
 
--- prevent various borkage by invalid userinfo
--- version: 4
--- history:
--- 4 - check length and IP
--- 3 - check for name exploit against guidcheck
--- 2 - fix nil var ref if kicked in RunFrame
--- fix incorrect cno in log message for ClientConnect kick
--- 1 - initial release
+-- prevent various exploits by invalid userinfo
 
--- names that can be used to exploit some log parsers
--- note: only console log parsers or print hooks should be affected,
--- game log parsers don't see these at the start of a line
--- "^etpro IAC" check is required for guid checking
--- comment/uncomment others as desired, or add your own
--- NOTE: these are patterns for string.find
 badnames = {
     '^ShutdownGame',
     '^ClientBegin',
@@ -221,7 +186,6 @@ badnames = {
 function check_userinfo( cno )
     if et.gentity_get(cno,"ps.ping") == 0 then return end
     local userinfo = et.trap_GetUserinfo(cno)
-    -- printf("check_userinfo: [%s]\n",userinfo)
 
     -- bad things can happen if it's full
     if string.len(userinfo) > 980 then
@@ -296,7 +260,7 @@ function check_userinfo( cno )
     if name == "" then
         return "missing name"
     end
-    -- printf("checkuserinfo %d name %s\n",cno,name)
+
     for _, badnamepat in ipairs(badnames) do
         local mstart,mend,cno = string.find(name,badnamepat)
         if mstart then
@@ -320,7 +284,6 @@ function et_RunFrame( leveltime )
         return
     end
 
-    -- printf("infocheck %d %d\n", infocheck_client, leveltime)
     infocheck_lasttime = leveltime
     if et.gentity_get(infocheck_client, "pers.connected") ~= 0 then
         if et.gentity_get(infocheck_client,"ps.ping") ~= 0 then
@@ -343,7 +306,6 @@ function et_RunFrame( leveltime )
 end
 
 function et_ClientUserinfoChanged( cno )
-    -- printf("clientuserinfochanged %d\n",cno)
     local reason = check_userinfo( cno )
     local guid = string.upper(et.Info_ValueForKey(et.trap_GetUserinfo(cno), "cl_guid"))
     if ( reason ) then
@@ -354,8 +316,6 @@ function et_ClientUserinfoChanged( cno )
 end
 
 -- prevent etpro guid borkage
--- version: 1
--- TY pants
 
 -- default to kick with no temp ban for now
 DEF_GUIDCHECK_BANTIME = 0
@@ -402,23 +362,16 @@ function check_guid_line(text)
         return
     end
 
-    -- printf("guidcheck: etpro GUID %d %s %s\n",cno,guid,netname)
-
     -- {N} is too complicated!
     mstart,mend = string.find(guid,"^%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x$")
     if not mstart then
         bad_guid(cno,"malformed")
         return
     end
-    -- printf("guidcheck: OK\n")
 end
 
 -- limit fakeplayers DOS
--- http://aluigi.altervista.org/fakep.htm
--- used if cvar is not set
--- confugration:
 -- set ip_max_clients cvar as desired. If not set, defaults to the value below.
---FAKEPLIMIT_VERSION = "1.0"
 DEF_IP_MAX_CLIENTS = 3
 
 et.G_Printf = function(...)
@@ -426,7 +379,6 @@ et.G_Printf = function(...)
 end
 
 function IPForClient(cno)
-    -- TODO listen servers may be 'localhost'
     local userinfo = et.trap_GetUserinfo( cno )
     if userinfo == "" then
         return ""
@@ -460,9 +412,6 @@ function et_ClientConnect( cno, firstTime, isBot )
         if not max or max <= 0 then
             max = DEF_IP_MAX_CLIENTS
         end
-        -- et.G_Printf("firstTime %d\n",firstTime);
-        -- it's probably safe to only do this on firsttime, but checking
-        -- every time doesn't hurt much
 
         -- validate userinfo to filter out the people blindly using luigi's code
         local userinfo = et.trap_GetUserinfo( cno )
@@ -488,9 +437,6 @@ function et_ClientConnect( cno, firstTime, isBot )
 end
 -- NoAutoDeclare()
 
--- Perlo_0ung
--- rifle module
-
 function et_ClientSpawn(cno,revived)
     if revived == 0 and et.gentity_get(cno, "sess.playerType") == 2 then
         et.gentity_set(cno,"ps.ammo",39,3)
@@ -498,10 +444,6 @@ function et_ClientSpawn(cno,revived)
     end
 end
 
--- Perlo_0ung?!
--- votefix version 2
--- lowers the mapname in "callvote map" command. This fixes the bug with the wrong mapscripthash of .script files.
--- note mapscripts (.script) have to be lower caps
 et.CS_VOTE_STRING = 7
 
 function et_Print(text)
