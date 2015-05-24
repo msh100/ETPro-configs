@@ -873,6 +873,8 @@ tank
 		trigger self 		tracks_stop
 		trigger tank_sound 	stop
 
+                cvar pauselock set 1 // Pause lock enabled
+
 		wm_objective_status 2 0 2
 		wm_objective_status 2 1 1
 
@@ -1299,6 +1301,8 @@ tank_turret
 
 		wait 100
 		trigger bank_door2_damaged bankbackboom
+
+                cvar pauselock set 0 // Pause lock disabled
 
 		playsound sound/vehicles/tank/turret_spin.wav looping
 		faceangles 0 0 0 3000
