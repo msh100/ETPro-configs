@@ -12,4 +12,4 @@ Versions
 
 Current: **1.3**
 
-Version 1.3 and before were created by ![NL](https://raw.githubusercontent.com/stevenrskelton/flag-icon/master/png/16/country-4x3/nl.png) pds.
+A list of contributors can be found in the [contributors file](CONTRIBUTORS).
