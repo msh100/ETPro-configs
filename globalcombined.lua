@@ -5,7 +5,8 @@ version = "{{ version }}"
 
 function et_InitGame(levelTime,randomSeed,restart)
     et.RegisterModname(""..modname.." "..version.." "..et.FindSelf())
-    gameformat = tonumber(et.trap_Cvar_Get( "b_gameformat" ))
+    config = et.trap_Cvar_Get( "b_config" )
+    gameformat = tonumber( et.trap_Cvar_Get( "b_gameformat" ) )
     maxclients = tonumber( et.trap_Cvar_Get( "sv_maxclients" ) )
     serverpassword = tonumber( et.trap_Cvar_Get( "g_password" ) )
     sniperaxis = 0
@@ -453,7 +454,7 @@ function et_Print(text)
     if t[2] == "Passed:" and t[4] == "map" then
         if string.find(t[6],"%u") == nil or t[6] ~= getCS() then return 1 end
         local mapfixed = string.lower(t[6])
-        et.trap_SendConsoleCommand( et.EXEC_APPEND, "ref map " .. mapfixed .. "\n" )
+        et.trap_SendConsoleCommand( et.EXEC_APPEND, "wait ;ref map " .. mapfixed .. ";wait 100;ref config " .. config .. "\n" )
     end
 end
 
