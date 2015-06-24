@@ -657,7 +657,6 @@ activate allies
 	wait 50
 
 	// Axis-only door fix
-	trigger axisonlydoor_st pscaptured
 	setstate axisonlydoor2 default
 	setstate axisonlydoor invisible
 	trigger axisonlydoor2 open
@@ -765,11 +764,6 @@ trigger activated
 trigger resetaccum
 {
 	accum 1 set 0
-}
-//Axis-only door fix
-trigger pscaptured
-{
-	accum 2 set 1
 }
 }
 
