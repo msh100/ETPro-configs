@@ -7,6 +7,19 @@ The files in this repository do not have a signature and will not give a certifi
 If you want a certified configuration, please refer to the releases.
 
 
+Testing
+-------
+
+A live version of master is running at:
+
+```
+/connect config.msh100.uk
+```
+
+This server will restart and re-build configs on every change to `master` automatically. 
+Please use this server for testing as configs are built and signed there.
+
+
 Versions
 --------
 
