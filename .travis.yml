@@ -1,2 +1,2 @@
 language: javascript
-script: ./redeploy.sh
+script: bash redeploy.sh
