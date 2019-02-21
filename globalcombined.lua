@@ -8,15 +8,15 @@ function et_InitGame(levelTime,randomSeed,restart)
     config = et.trap_Cvar_Get( "b_config" )
     gameformat = tonumber( et.trap_Cvar_Get( "b_gameformat" ) )
     maxclients = tonumber( et.trap_Cvar_Get( "sv_maxclients" ) )
-    serverpassword = tonumber( et.trap_Cvar_Get( "g_password" ) )
+    et.trap_Cvar_Set("pauselock", "0")
     sniperaxis = 0
     sniperallies = 0
-
+    -- set the b_gameformat incase server.config doesnt do it
     if gameformat == nil then
         et.trap_Cvar_Set( "b_gameformat", "0" )
     end
 
-    et.trap_Cvar_Set("pauselock", "0")
+   
 end
 
 -- client command checks, formerly wsfix
@@ -27,24 +27,24 @@ function et_ClientCommand(cno,cmd)
     local arg1 = string.lower(et.trap_Argv(1))
     local byte = string.byte(arg1,1)
 
-    if string.find(arg1, "^7ref") or string.find(arg1, "^7rcon") then
-        et.trap_SendServerCommand( cno, "print \"Ckeck your typing: '"..arg1.."'\n\"" )
+    if string.find(arg1, "^7ref") or string.find(arg1, "^7rcon") then -- prevent ref/rcon mishaps
+        et.trap_SendServerCommand( cno, "print \"^wCheck your typing: '"..arg1.."'\n\"" )
         return 1
     end
 
     if cmd == "team" or cmd == "nextteam" then --exploit fix team command
         if string.len(arg1) > 1 then
-            et.trap_SendServerCommand( cno , "print \"Invalid team join command.\n\"" )
+            et.trap_SendServerCommand( cno , "print \"^wInvalid team join command.\n\"" )
             return 1
         end
         if arg1 ~= "" and byte ~= 98 and byte ~= 114 and byte ~= 115 then
-            et.trap_SendServerCommand( cno , "print \"Invalid team join command.\n\"" )
+            et.trap_SendServerCommand( cno , "print \"^wInvalid team join command.\n\"" )
             return 1
         end
     end
 
     if cmd == "pause" and tonumber(et.trap_Cvar_Get("pauselock")) == 1 then
-        et.trap_SendServerCommand( cno , "print \"Pause forbidden during this stage of the map.\n\"" )
+        et.trap_SendServerCommand( cno , "print \"^wPause forbidden during this stage of the map.\n\"" )
         return 1
     end
 
@@ -55,7 +55,12 @@ function et_ClientCommand(cno,cmd)
     end
 
     if cmd == "b_gameformat" then
-        et.trap_SendServerCommand( cno,"print \"^wb_gameformat is: "..gameformat.." default: 0\n\"")
+        if arg1 == nil then
+            et.trap_SendServerCommand( cno , "print \"^wb_gameformat is: ""..gameformat.."" default: "0"\n\"")
+        end
+        if arg ~= nil then
+            et.trap_SendServerCommand(cno, "print \"^wb_gameformat is read only."\n")
+        end
         return 1
     end
 
@@ -138,7 +143,7 @@ function et_ClientCommand(cno,cmd)
         end
     end -- gameformat check end
 
-    if cmd == "ws" then
+    if cmd == "ws" then -- ws overflow fix
         local n = tonumber(et.trap_Argv(1))
         if not n then
             et.G_LogPrint(string.format("wsfix: client %d bad ws not a number [%s]\n",cno,tostring(et.trap_Argv(1))))
@@ -154,7 +159,7 @@ function et_ClientCommand(cno,cmd)
     if cmd == "callvote" or cmd == "ref" or cmd == "sa" or cmd == "semiadmin" then
         local args=et.ConcatArgs(1)
         if string.find(args,"[\r\n]") then
-            et.G_LogPrint(string.format("combinedfixes: client %d bad %s [%s]\n",cno,cmd,args))
+            et.G_LogPrint(string.format("borkcmdfix: client %d bad %s [%s]\n",cno,cmd,args))
             return 1;
         end
         return 0
@@ -329,7 +334,7 @@ function bad_guid(cno,reason)
 
     et.G_LogPrint(string.format("guidcheck: client %d bad GUID %s\n",cno,reason))
     -- we don't send them the reason. They can figure it out for themselves.
-    et.trap_DropClient(cno,"You are banned from this server",0)
+    et.trap_DropClient(cno,"You are banned from this server.",0)
 end
 
 function check_guid_line(text)
@@ -418,7 +423,7 @@ function et_ClientConnect( cno, firstTime, isBot )
         local userinfo = et.trap_GetUserinfo( cno )
         -- et.G_Printf("userinfo: [%s]\n",userinfo)
         if et.Info_ValueForKey( userinfo, "rate" ) == "" then
-            et.G_Printf(""..modname..": invalid userinfo from %s\n",ip)
+            et.G_Printf("userinfocheck validate: invalid userinfo from %s\n",ip)
             return "invalid connection"
         end
 
@@ -430,7 +435,7 @@ function et_ClientConnect( cno, firstTime, isBot )
                 if count > max then
                     et.G_Printf(""..modname..": too many connections from %s\n",ip)
                     -- TODO should we drop / ban all connections from this IP ?
-                    return string.format("only %d connections per IP are allowed on this server",max)
+                    return string.format("Only %d connections per IP are allowed on this server.",max)
                 end
             end
         end
@@ -438,13 +443,16 @@ function et_ClientConnect( cno, firstTime, isBot )
 end
 -- NoAutoDeclare()
 
-function et_ClientSpawn(cno,revived)
-    if revived == 0 and et.gentity_get(cno, "sess.playerType") == 2 then
-        et.gentity_set(cno,"ps.ammo",39,3)
-        et.gentity_set(cno,"ps.ammo",40,3)
+if gameformat == 5 then -- only apply rifle limit to 5on5 config
+    function et_ClientSpawn(cno,revived)
+        if revived == 0 and et.gentity_get(cno, "sess.playerType") == 2 then
+          et.gentity_set(cno,"ps.ammo",39,3)
+          et.gentity_set(cno,"ps.ammo",40,3)
+        end
     end
 end
 
+-- callvote map fix
 et.CS_VOTE_STRING = 7
 
 function et_Print(text)
@@ -454,7 +462,7 @@ function et_Print(text)
     if t[2] == "Passed:" and t[4] == "map" then
         if string.find(t[6],"%u") == nil or t[6] ~= getCS() then return 1 end
         local mapfixed = string.lower(t[6])
-        et.trap_SendConsoleCommand( et.EXEC_APPEND, "wait ;ref map " .. mapfixed .. ";wait 100;ref config " .. config .. "\n" )
+        et.trap_SendConsoleCommand( et.EXEC_APPEND, "wait 1;ref map " .. mapfixed .. ";wait 100;ref config " .. config .. "\n" )
     end
 end
 
