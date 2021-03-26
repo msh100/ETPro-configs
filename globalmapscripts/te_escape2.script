@@ -2,6 +2,13 @@ game_manager
 {
 	spawn
 	{
+        create
+        {
+            scriptname "added_flag"
+            targetname "added_flag"
+            classname "team_WOLF_checkpoint"
+            origin "-3311 1360 128"
+        }
 		// Game rules
 		wm_axis_respawntime	30
 		wm_allied_respawntime	20
@@ -54,10 +61,8 @@ game_manager
 
 		wait 1000
 		// *----------------------------------- vo ------------------------------------------*
-		wm_teamvoiceannounce 1 "radar_allies_entrances_destroy"
 		wm_teamvoiceannounce 0 "radar_axis_entrances_defend"
-		wm_teamvoiceannounce 1 "allies_hq_compost_construct"
-		wm_teamvoiceannounce 0 "te_escape2_axis_cp_stop_construct"
+        wm_teamvoiceannounce 1 "radar_allies_entrances_destroy"
 		// *----------------------------------- vo ------------------------------------------*
 	}
 }
@@ -132,6 +137,10 @@ door_obj02 //main gate
 		wm_objective_status 	3 1 1
 
 		enablespeaker somalarme
+        
+        trigger added_flag allied_capture
+        wm_announce "Allies have secured the Forward Bunker!"
+        setstate added_flag invisible
 	}
 }
 
@@ -165,11 +174,13 @@ allied_compost_built
 	spawn
 	{
 		wait 500
-		trigger allied_compost_built setup
-		disablespeaker somcp
-
-		constructible_class 2
 		accum 0 set 0	//  Who has the spawn: 0-Axis, 1-Allied
+		disablespeaker somcp
+        setstate allied_compost_closed_model invisible
+		setstate allied_compost_closed_clip invisible
+        setstate allied_compost_toi invisible
+        setstate allied_compost_clip invisible
+        remove
 	}
 
 	trigger setup
@@ -182,6 +193,7 @@ allied_compost_built
 		sethqstatus 1 0
 
 		disablespeaker allied_cp_sound		// Disable morse code sound
+        wait 100
 	}
 
 	buildstart final
@@ -226,7 +238,7 @@ allied_compost_built_model
 	spawn
 	{
 		wait 400
-		setstate allied_compost_built_model invisible
+        remove
 	}
 
 	trigger enable_allied_features
@@ -289,4 +301,45 @@ allied_compost_built_model
 		wm_objective_status 5 0 0
 		wm_objective_status 5 1 0
 	}
+}
+
+added_flag
+{
+    spawn
+    {
+        wait 200
+        accum 0 set 0
+    }
+    trigger allied_capture
+    {
+        accum 0 abort_if_equal 1
+        accum 0 set 1
+        wm_announce "Allies have captured the Forward Bunker!"
+        wm_objective_status 5 0 2
+		wm_objective_status 5 1 1
+
+		alertentity cp_spawn_wobj
+		alertentity frentespawns
+
+		setautospawn "Castle Wolfenstein" 0
+		setautospawn "Forward Spawn" 1
+
+    }
+    trigger axis_capture
+    {
+        accum 0 abort_if_equal 0
+        accum 0 set 0
+        wm_announce "Axis have reclaimed the Forward Bunker!"
+		wm_objective_status 5 0 1
+		wm_objective_status 5 1 2
+
+		alertentity cp_spawn_wobj
+		alertentity frentespawns
+
+		setautospawn "the Tower" 1
+		setautospawn "Forward Spawn" 0
+
+		wm_objective_status 5 0 0
+		wm_objective_status 5 1 0
+    }
 }

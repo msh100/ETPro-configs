@@ -5,7 +5,7 @@ game_manager
 	{
 
 		// Game rules
-		wm_axis_respawntime	30
+		wm_axis_respawntime	25
 		wm_allied_respawntime	30
 		wm_number_of_objectives 7
 		wm_set_round_timelimit	12
