@@ -7,7 +7,7 @@ game_manager
 			scriptname "doornwall"
 			targetname "doornwall"
 			classname "func_door_rotating"
-			allowteams "1"
+			allowteams "axis"
 			origin "976 -1684 331"
 			type "4"
 			model "*14"
