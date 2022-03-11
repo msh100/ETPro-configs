@@ -9,6 +9,14 @@ game_manager
             classname "team_WOLF_checkpoint"
             origin "-3311 1360 128"
         }
+
+	// te_escape2 texture fix:
+        // remap tree shaders to avoid overwriting pak0.pk3 assets
+        remapshader textures/tree/branch_pine5 textures/tree/branch_pine5_rtcw
+        remapshader textures/tree/branch_pine5a textures/tree/branch_pine5a_rtcw
+        remapshader textures/tree/branch_pine6 textures/tree/branch_pine6_rtcw
+        remapshaderflush
+
 		// Game rules
 		wm_axis_respawntime	30
 		wm_allied_respawntime	20
