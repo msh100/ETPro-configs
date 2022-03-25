@@ -2,12 +2,44 @@ game_manager
 {
 	spawn
 	{
+        // fakebrush stairs for the invisible wall near flag
+        create
+        {
+            // bottom step
+            classname "func_fakebrush"
+            scriptname "flagwall_step_bottom"
+            contents 1
+            origin "1576 -976 80"
+            mins "-24 -128 -8"
+            maxs "24 128 8"
+        }
+        create
+        {
+            // middle step
+            classname "func_fakebrush"
+            scriptname "flagwall_step_mid"
+            contents 1
+            origin "1576 -980 92"
+            mins "-16 -124 -4"
+            maxs "16 124 4"
+        }
+        create
+        {
+            // top step
+            classname "func_fakebrush"
+            scriptname "flagwall_step_top"
+            contents 1
+            origin "1576 -984 100"
+            mins "-8 -120 -4"
+            maxs "8 120 4"
+        }
+
 		create
 		{			
 			scriptname "doornwall"
 			targetname "doornwall"
 			classname "func_door_rotating"
-			allowteams "axis"
+			allowteams "1"
 			origin "976 -1684 331"
 			type "4"
 			model "*14"
