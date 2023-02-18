@@ -52,7 +52,7 @@ game_manager
   		 	scriptName "bflag_spawn5"
    			classname "team_CTF_bluespawn"
   			targetname "bflag_spawn"
-   			origin "6454 6707 -250"
+   			origin "6464 6707 -250"
    			spawnflags "1" 
 		}
 		create
@@ -60,15 +60,15 @@ game_manager
   		 	scriptName "bflag_spawn6"
    			classname "team_CTF_bluespawn"
   			targetname "bflag_spawn"
-   			origin "6454 6665 -250"
+   			origin "6464 6665 -250"
    			spawnflags "1" 
 		}
 		create
 		{
-  		 	scriptName "bflag_spawn6"
+  		 	scriptName "bflag_spawn7"
    			classname "team_CTF_bluespawn"
   			targetname "bflag_spawn"
-   			origin "6454 6613 -250"
+   			origin "6464 6613 -250"
    			spawnflags "1" 
 		}
 		create
@@ -81,7 +81,7 @@ game_manager
 			objflags "4"
 			origin "6576 6675 -300"
 		}
-		
+
 		accum 1 set 0		// State of objective number one
 		accum 5 set 0		// Corrent number of Pak 75mm guns destroyed
 		accum 6 set 0		// Current number of water pumps built
@@ -92,7 +92,7 @@ game_manager
 
 		// Game rules
 		wm_axis_respawntime	30
-		wm_allied_respawntime	15
+		wm_allied_respawntime	25
 		wm_number_of_objectives 8
 		wm_set_round_timelimit	20
 

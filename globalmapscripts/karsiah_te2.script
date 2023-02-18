@@ -1,13 +1,79 @@
+// hazz Jan 2023 - Added extra fakebrush to mapscript to block players from getting South docs in case they sneak through before main gate is blown
+
 game_manager
 {
 	spawn
 	{
 		create
+		{
+			scriptname "newdoorclip"
+			targetname "newdoorclip"
+			classname "func_fakebrush"
+			origin "-1330 -1176 -40"
+			mins "-80 -24 0"
+			maxs "80 0 150" 
+			contents 1
+		}
+		create
+        {
+	        scriptName "back_spawn_roof_patch"
+	        classname "func_fakebrush"
+	        origin "-1390 160 568"
+	        contents 1  // CONTENTS_SOLID
+	        mins "-290 -160 0"
+	        maxs "290 160 10"
+        }
+
+		// Axis spawns
+		create
+		{
+			classname "team_CTF_redspawn"
+			targetname "middlespawns"
+			scriptname "middlespawns"
+			origin "1376 -1576 304" // Axis flag left
+			spawnflags "3"
+			angle "180"
+			id "1" // setspawnpt 3 1
+		}
+
+		// fakebrush stairs for the invisible wall near flag
+		create
+		{
+		    // bottom step
+		    classname "func_fakebrush"
+		    scriptname "flagwall_step_bottom"
+		    contents 1
+		    origin "1576 -976 80"
+		    mins "-24 -128 -8"
+		    maxs "24 128 8"
+		}
+		create
+		{
+		    // middle step
+		    classname "func_fakebrush"
+		    scriptname "flagwall_step_mid"
+		    contents 1
+		    origin "1576 -980 92"
+		    mins "-16 -124 -4"
+		    maxs "16 124 4"
+		}
+		create
+		{
+		    // top step
+		    classname "func_fakebrush"
+		    scriptname "flagwall_step_top"
+		    contents 1
+		    origin "1576 -984 100"
+		    mins "-8 -120 -4"
+		    maxs "8 120 4"
+		}
+
+		create
 		{			
 			scriptname "doornwall"
 			targetname "doornwall"
 			classname "func_door_rotating"
-			allowteams "1"
+			allowteams "axis"
 			origin "976 -1684 331"
 			type "4"
 			model "*14"
@@ -205,6 +271,8 @@ game_manager
 		{
 			origin "976 -1684 330"	
 		}
+		
+		setstate newdoorclip default
 
 	}
 
@@ -222,7 +290,7 @@ game_manager
 		wm_objective_status 5 1 1
 
 		wm_setwinner 1
-		wait 1000
+		//wait 1000 // remove wait because comp
 		wm_endround
 	}
 }
@@ -320,7 +388,10 @@ bigdoor
 		trigger spawnflag check_obj
 		trigger spawnflag kill
 ////////////////////////////////////////////////////
+		// keep this invisible until bigdoor is blown, because it uses the same model
 		trigger newobjdoor visible
+		// invisible door can now be removed
+		setstate newdoorclip invisible
 ///////////////////////////////////////////////////
 
 		wm_announce "Allies have destroyed the Old City Door!"
